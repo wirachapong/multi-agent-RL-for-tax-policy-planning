@@ -20,7 +20,7 @@ class DoubleAuction:
               have open for a given resource. Must be >= 1. Default is no limit to
               number of orders.
           commodities (List): commodities that can be traded
-          agents: (dict[int : person]): List of all 'person's in the world.
+          agents: (dict[int : person]): dict of all 'person's in the world by idx.
       """
 
     def __init__(
@@ -136,17 +136,17 @@ class DoubleAuction:
                 bid_hist += h
         return bid_hist
 
-    def can_bid(self, resource, agent_idx):
+    def can_bid(self, resource, agent):
         """If agent can submit a bid for resource.
         **currently no cap so should always be true** """
-        return self.n_orders[resource][agent_idx] < self.max_num_orders
+        return self.n_orders[resource][agent.idx] < self.max_num_orders
 
-    def can_ask(self, resource, agent_idx):
+    def can_ask(self, resource, agent):
         """If agent can submit an ask for resource.
         **currently no cap so should always be true** """
         return (
-                self.n_orders[resource][agent_idx] < self.max_num_orders
-                and self.agents[agent_idx].get_inventory(resource) > 0
+                self.n_orders[resource][agent.idx] < self.max_num_orders
+                and self.agents[agent.idx].get_inventory(resource) > 0
         # todo implement this in 'person'. should return the amount of available inventory of a given resource
         )
 
@@ -445,7 +445,7 @@ class DoubleAuction:
         self.match_orders()  # Pair bids and asks
         self.remove_expired_orders()  # Get rid of orders that have expired
 
-    def generate_person_observation(self, agent_idx):
+    def generate_person_observation(self, agent):
         """
         Agents only see the
         outstanding bids/asks to which they could respond (including their own).
@@ -471,11 +471,11 @@ class DoubleAuction:
                     f"market_rate-{c}": market_rate,
                     f"price_history-{c}": scaled_price_history,
                     f"available_asks-{c}": full_asks
-                                           - self.ask_hists[c][agent_idx],
+                                           - self.ask_hists[c][agent.idx],
                     f"available_bids-{c}": full_bids
-                                           - self.bid_hists[c][agent_idx],
-                    f"my_asks-{c}": self.ask_hists[c][agent_idx],
-                    f"my_bids-{c}": self.bid_hists[c][agent_idx],
+                                           - self.bid_hists[c][agent.idx],
+                    f"my_asks-{c}": self.ask_hists[c][agent.idx],
+                    f"my_bids-{c}": self.bid_hists[c][agent.idx],
                 }
             )
 
