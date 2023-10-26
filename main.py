@@ -22,6 +22,18 @@ def main():
 
 def simulate_episode(env):
     current_state = env.get_state()
+    
+
+
+    #  Here should be the space that each individual start doing actions
+    for i in env.persons:
+        person_action = i.select_action(current_state)
+        i.earn_revenue()
+        person_next_state = env.step(person_action) 
+        person_reward = i.get_reward(0, env.persons) 
+        i.remember(current_state, person_action, person_reward, person_next_state)
+
+    #
     action = env.PolicyPlannerAgent.select_action(current_state)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state = env.step(action)  # Adjusted for simplicity; step might need more info
@@ -29,16 +41,6 @@ def simulate_episode(env):
     # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
     env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state)
     env.PolicyPlannerAgent.replay()  # Experience replay
-
-
-    #  Here should be the space that each individual start doing actions
-    for i in env.persons:
-        person_action = i.select_action(current_state)
-        person_next_state = env.step(person_action) 
-        person_reward = i.get_reward(0, env.persons) 
-        i.remember(current_state, person_action, person_reward, person_next_state)
-
-    #
     return [reward_policy_planner]
 
 if __name__ == "__main__":

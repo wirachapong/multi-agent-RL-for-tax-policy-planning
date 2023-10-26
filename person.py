@@ -1,4 +1,4 @@
-from constants import EDUCATION_EARNINGS,EXPENSE
+from constants import EDUCATION_EARNINGS,EXPENSE,ALPHA
 import numpy as np
 import torch
 import torch.nn as nn
@@ -19,17 +19,17 @@ class Person:
         self.model= NNOfPerson
         self.net_worth = 0
         self.education_level = edu_level
+        self.income_for_the_round = 0
         self._idx = next(self.id_generator)
+        self.memory = []
+        self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
 
     def earn(self):
         return EDUCATION_EARNINGS[self.education_level]
 
-    def spend(self):
-        return EXPENSE
-
     def update_net_worth(self):
-        self.net_worth += self.earn() - self.spend()
+        self.net_worth += self.earn()
 
     @property
     def idx(self):
@@ -52,12 +52,8 @@ class Person:
 
         pass
 
-    # total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
-    # next_state = env.step(action)  # Adjusted for simplicity; step might need more info
-    # reward = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
-    # # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
-    # env.PolicyPlannerAgent.remember(current_state, action, reward, next_state)
-    # env.PolicyPlannerAgent.replay() 
+    def earn_revenue(self):
+        self.income_for_the_round = 400 * self.education_level
         
 
 class NNOfPerson(nn.module):

@@ -76,11 +76,34 @@ class PolicyPlannerAgent:
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
+        accumulated_tax=self.apply_tax(persons,self.current_tax_rate)
         for person in persons:
-            
+            person.net_worth+=accumulated_tax/len(persons)
         # this is the old back bone so we will probably change it later
         return total_cost
     
+    def apply_tax(persons, brackets, bracket_gap=5000):
+        accumulated_tax=0
+        for person in persons:
+            # Calculate the person's income bracket based on their income.
+            income_bracket_index = int(person.income_for_the_round / bracket_gap)
+
+            # Make sure we don't exceed the number of defined brackets.
+            if income_bracket_index > len(brackets) - 1:
+                income_bracket_index = len(brackets) - 1
+
+            # Get the tax rate for the person's bracket.
+            tax_rate = brackets[income_bracket_index]
+
+            # Calculate the tax amount.
+            tax_amount = (tax_rate / 100.0) * person.income_for_the_round
+
+            accumulated_tax += tax_amount
+
+            # Deduct the tax from the person's income.
+            person.income_for_the_round -= tax_amount
+
+            return accumulated_tax
 
     #need to change this one
     def get_reward(self, total_cost, persons):  
