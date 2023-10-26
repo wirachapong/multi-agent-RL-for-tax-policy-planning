@@ -11,21 +11,24 @@ from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SA
 
 
 class QNetwork(nn.Module):
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, output_dim)
+        self.fc3 = nn.Linear(128, 21)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
-        return self.fc3(x)
+        x = self.fc3(x)
+        return x.view(-1, 3, 7) 
 
 class PolicyPlannerAgent:
     def __init__(self, input_dim, num_actions):
         self.model = QNetwork(input_dim, num_actions)
+        self.current_tax_rate = [10,12,22,24,32,35,37]
         self.memory = []  # For experience replay
+        self.history_of_auctions = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
     def select_action(self, state):
@@ -35,7 +38,11 @@ class PolicyPlannerAgent:
             with torch.no_grad():
                 state_tensor = torch.FloatTensor(state).unsqueeze(0)
                 q_values = self.model(state_tensor)
-                return torch.argmax(q_values).item()
+                max_values, max_indices = torch.max(q_values, dim=1) 
+                return max_indices[0] 
+                # EX Output [1, 0, 1, 2, 0, 1, 0]
+                # 0 = remain same tax rate     1= +0.1 tax rate for the bracket    2 = -0.1 tax rate for the bracket  
+                
 
     def remember(self, state, action, reward, next_state):
         self.memory.append((state, action, reward, next_state))
@@ -65,30 +72,11 @@ class PolicyPlannerAgent:
 
     def apply_action(self, action, persons):
         total_cost = 0
-
-        if action == 0:  # Assuming 0 is the action for direct money granting
-            grant_amount = 500  # Define this as per requirement
-            for person in persons:
-                person.net_worth += grant_amount
-            total_cost = grant_amount * len(persons)
-            
-        elif action == 1:  # Upgrade education level of random 5 people
-            # Select 5 random people who have education level less than 4
-            eligible_persons = [p for p in persons if p.education_level < 4]
-            selected_persons = random.sample(eligible_persons, min(5, len(eligible_persons)))
-
-            for person in selected_persons:
-                # Increase the educational level
-                person.education_level += 1
-
-                # Calculate the salary difference due to the upgrade
-                salary_difference = SALARIES[person.education_level] - SALARIES[person.education_level - 1]
-
-                # Calculate the cost of the upgrade and add to the total_cost
-                upgrade_cost = 5 * salary_difference
-                total_cost += upgrade_cost
-
-
+        current_tax_rate = self.current_tax_rate
+        action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
+        new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
+        self.current_tax_rate = new_tax_rate
+        # this is the old back bone so we will probably change it later
         return total_cost
     
     def get_reward(self, total_cost, persons):  # need to check this one too

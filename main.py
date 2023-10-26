@@ -23,7 +23,8 @@ def simulate_episode(env):
     action = env.PolicyPlannerAgent.select_action(current_state)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state = env.step(action)  # Adjusted for simplicity; step might need more info
-    reward = env.PolicyPlannerAgent.get_reward(total_cost, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    reward = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
     env.PolicyPlannerAgent.remember(current_state, action, reward, next_state)
     env.PolicyPlannerAgent.replay()  # Experience replay
     return reward
