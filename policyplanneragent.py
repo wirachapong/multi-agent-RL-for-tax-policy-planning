@@ -76,10 +76,14 @@ class PolicyPlannerAgent:
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
+        for person in persons:
+            
         # this is the old back bone so we will probably change it later
         return total_cost
     
-    def get_reward(self, total_cost, persons):  # need to check this one too
+
+    #need to change this one
+    def get_reward(self, total_cost, persons):  
         net_worth_sum = sum([person.net_worth for person in persons])
         reward = net_worth_sum - total_cost
         return reward

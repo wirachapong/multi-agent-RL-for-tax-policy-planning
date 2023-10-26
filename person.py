@@ -36,6 +36,29 @@ class Person:
         """Index used to identify this agent. Must be unique within the environment."""
         return self._idx
 
+    def select_action(self):
+
+        pass
+
+    def get_reward(self):
+
+        pass
+
+    def remember(self):
+
+        pass
+
+    def replay(self):
+
+        pass
+
+    # total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    # next_state = env.step(action)  # Adjusted for simplicity; step might need more info
+    # reward = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    # # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
+    # env.PolicyPlannerAgent.remember(current_state, action, reward, next_state)
+    # env.PolicyPlannerAgent.replay() 
+        
 
 class NNOfPerson(nn.module):
     def __init__(self, input_dim, output_dim):

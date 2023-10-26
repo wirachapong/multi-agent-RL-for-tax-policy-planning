@@ -29,8 +29,10 @@ class Environment:
         tax_rate= PolicyPlannerAgent.current_tax_rate
 
         # it should also be history_of_auctions here but I'm not sure how to include it.
+        
 
-        state = net_worths + educations+tax_rate
+
+        state = net_worths + educations + tax_rate
         return state
 
     def step(self, action):
