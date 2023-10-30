@@ -34,7 +34,7 @@ class PolicyPlannerAgent:
 
     def select_action(self, state):
         if np.random.uniform(0, 1) < EPSILON:
-            return [np.random.choice(ACTIONS) for _ in range(len(self.current_tax_rate))]
+            return torch.tensor([np.random.choice(ACTIONS) for _ in range(len(self.current_tax_rate))])
 
         else:
             with torch.no_grad():
@@ -63,7 +63,8 @@ class PolicyPlannerAgent:
             next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
 
             with torch.no_grad():
-                target = reward + GAMMA * torch.max(self.model(next_state_tensor)) #! Think there is an error here, torch.max returns both max value and argmax index.
+                max_values, max_indices = torch.max(self.model(next_state_tensor), dim=1)
+                target = reward + GAMMA * max_values
 
             q_values = self.model(state_tensor)
             loss = nn.MSELoss()(q_values[0][action], target)
