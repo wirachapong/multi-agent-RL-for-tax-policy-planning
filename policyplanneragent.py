@@ -78,7 +78,7 @@ class PolicyPlannerAgent:
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
-        accumulated_tax=self.apply_tax(persons, self.current_tax_rate)
+        accumulated_tax = self.apply_tax(persons, self.current_tax_rate)
 
         for person in persons:
             person.net_worth+=accumulated_tax/len(persons)
