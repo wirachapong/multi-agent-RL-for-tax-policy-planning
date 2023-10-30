@@ -1,12 +1,12 @@
 # main.py
-from environment import Environment
+from environment_1nn import Environment_1nn
 from policyplanneragent import PolicyPlannerAgent
-from person import Person
+from person_1nn import Person_1nn
 from constants import NUM_PERSONS
 
 def main():
     
-    env = Environment(NUM_PERSONS)
+    env = Environment_1nn(NUM_PERSONS)
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
@@ -19,7 +19,7 @@ def main():
         total_reward_individual += reward_individual
         # Optionally decrease epsilon over time to reduce exploration
         if EPSILON > 0.01:
-            EPSILON *= 0.995   
+            EPSILON *= 0.995  
 
     print(f"Total reward after {num_episodes} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 
@@ -43,7 +43,6 @@ def simulate_episode(env):
     #     person.replay()
 
     action = env.PolicyPlannerAgent.select_action(current_state)
-    print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state = env.persons_step()
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
@@ -53,7 +52,7 @@ def simulate_episode(env):
     env.PolicyPlannerAgent.replay()  # Experience replay
 
     total_reward_individual = sum([person.get_reward() for person in env.persons])
-    return reward_policy_planner, total_reward_individual
+    return [reward_policy_planner, total_reward_individual]
 
 if __name__ == "__main__":
     main()

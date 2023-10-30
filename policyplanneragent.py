@@ -3,19 +3,20 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import random
+from collections import deque
+
 from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SALARIES
+
 
 # Constants for the agent and learning process.
 # You can also move these to a separate configuration file or constants module.
 
-
-
 class QNetwork(nn.Module):
-    def __init__(self, input_dim):
+    def __init__(self, input_dim:int, num_actions:int):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 21)
+        self.fc3 = nn.Linear(128, 7 * num_actions)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
@@ -24,16 +25,17 @@ class QNetwork(nn.Module):
         return x.view(-1, 3, 7) 
 
 class PolicyPlannerAgent:
-    def __init__(self, input_dim, num_actions):
+    def __init__(self, input_dim:int, num_actions:int):
         self.model = QNetwork(input_dim, num_actions)
         self.current_tax_rate = [10,12,22,24,32,35,37]
-        self.memory = []  # For experience replay
+        self.memory = deque()  # For experience replay
         self.history_of_auctions = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
     def select_action(self, state):
         if np.random.uniform(0, 1) < EPSILON:
-            return np.random.choice(ACTIONS)
+            return torch.tensor([np.random.choice(ACTIONS) for _ in range(len(self.current_tax_rate))])
+
         else:
             with torch.no_grad():
                 state_tensor = torch.FloatTensor(state).unsqueeze(0)
@@ -42,12 +44,12 @@ class PolicyPlannerAgent:
                 return max_indices[0] 
                 # EX Output [1, 0, 1, 2, 0, 1, 0]
                 # 0 = remain same tax rate     1= +0.1 tax rate for the bracket    2 = -0.1 tax rate for the bracket  
-                
 
     def remember(self, state, action, reward, next_state):
         self.memory.append((state, action, reward, next_state))
         if len(self.memory) > MEMORY_SIZE:
-            self.memory.pop(0)
+            #self.memory.pop(0)
+            self.memory.popleft()
 
     def replay(self):
         if len(self.memory) < BATCH_SIZE:
@@ -61,7 +63,8 @@ class PolicyPlannerAgent:
             next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
 
             with torch.no_grad():
-                target = reward + GAMMA * torch.max(self.model(next_state_tensor))
+                max_values, max_indices = torch.max(self.model(next_state_tensor), dim=1)
+                target = reward + GAMMA * max_values
 
             q_values = self.model(state_tensor)
             loss = nn.MSELoss()(q_values[0][action], target)
@@ -76,13 +79,30 @@ class PolicyPlannerAgent:
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
-        accumulated_tax=self.apply_tax(persons,self.current_tax_rate)
+        accumulated_tax = self.apply_tax(persons, self.current_tax_rate)
+
         for person in persons:
             person.net_worth+=accumulated_tax/len(persons)
+        
         # this is the old back bone so we will probably change it later
         return total_cost
     
-    def apply_tax(persons, brackets, bracket_gap=5000):
+    def tax_rate_for_income(self, income, bracket_gap:int=5000):
+
+        brackets = self.current_tax_rate
+        # Calculate the person's income bracket based on their income.
+        income_bracket_index = int(income / bracket_gap)
+        # Make sure we don't exceed the number of defined brackets.
+        if income_bracket_index > len(brackets) - 1:
+            income_bracket_index = len(brackets) - 1
+
+        tax_rate = brackets[income_bracket_index]
+        tax_income = (tax_rate / 100.0) * income
+        person_income = income - tax_income 
+
+        return person_income, tax_income
+    
+    def apply_tax(self, persons, brackets, bracket_gap:int=5000):
         accumulated_tax=0
         for person in persons:
             # Calculate the person's income bracket based on their income.

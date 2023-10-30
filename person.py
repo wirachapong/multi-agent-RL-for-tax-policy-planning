@@ -3,36 +3,63 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from collections import deque
+from NNOfPerson import NNOfPerson
 
-def id_generator_function():
-    """Generate integers 0, 1, 2, and so on."""
-    task_id = 0
-    while True:
-        yield task_id
-        task_id += 1
-
+# def id_generator_function():
+#     """Generate integers 0, 1, 2, and so on."""
+#     task_id = 0
+#     while True:
+#         yield task_id
+#         task_id += 1
 
 class Person:
-    id_generator = id_generator_function()
+    # id_generator = id_generator_function()
 
-    def __init__(self,NNOfPerson,edu_level, epsilon=0.1):
-        self.model= NNOfPerson
-        self.net_worth = 0
-        self.education_level = edu_level
-        self.potential_income = 400 * self.education_level
-        self.income_for_the_round = 0
-        self._idx = next(self.id_generator)
-        self.memory = []
+    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1):
+        # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
+        
+        # QNetwork definition
+        self.model = NNOfPerson(2, 2) # QNetwork[net_worth, potential_income] -> [earn, learn]
+        # Needed for all definitions of a person
+
+        self._idx = idx
+        self.memory = deque()
         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
-        self.loss_fn = nn.Loss()
-
-        self.state = [self.net_worth, self.potential_income]
-        self.action_space = ["Earn", "Learn"]
-
         self.epsilon = epsilon
 
-    def update_net_worth(self):
-        self.net_worth += self.earn()
+        # Value trackings
+        self.net_worth = net_worth
+        self.education_level = education_level
+        self.base_salary = base_salary
+        self.potential_income = self.base_salary * self.education_level
+        self.income_for_the_round = 0
+        self.tax_for_the_round = 0
+
+        
+        self.state = [self.net_worth, self.potential_income]
+        self.action_space = [0, 1] # ["earn", "learn"]
+    
+    # def update_net_worth(self):
+    #     self.net_worth += self.earn()
+
+    def earn(self, tax_function):
+        self.income_for_the_round = self.potential_income
+    
+        self.income_for_the_round, self.tax_for_the_round = tax_function(self.income_for_the_round)
+        # self.net_worth += self.income_for_the_round
+        
+    def learn(self):
+        self.income_for_the_round, self.tax_for_the_round = 0, 0
+        self.education_level += EDUCATION_INCREASE
+        self.potential_income = self.base_salary * self.education_level
+
+    # Can include number of hours worked at later stages
+    def get_reward(self):
+        return self.income_for_the_round
+    
+    def get_state(self):
+        return [self.net_worth, self.potential_income]
 
     @property
     def idx(self):
@@ -47,25 +74,25 @@ class Person:
             with torch.no_grad():
                 state_tensor = torch.FloatTensor(self.get_state())
                 q_values = self.model(state_tensor)
-                max_values, max_indices = torch.max(q_values, dim=0)
-
-                if max_indices.item() == 0:
-                    return "Earn"
-                else:
-                    return "Learn"
-                
-
-    # Can include number of hours worked at later stages
-    def get_reward(self):
-        return self.income_for_the_round
+                max_indices = torch.argmax(q_values)
+                return int(max_indices) # 0-> earn, 1-> learn
     
-    def get_state(self):
-        return [self.net_worth, self.potential_income]
-    
-    def remember(self):
+    # returns the next state
+    def take_action(self, action:int, tax_function):
+        if action == 0: # Earn
+            self.earn(tax_function)
+
+        else:
+            self.learn()
+
+    # def step(self):
+    #     action = self.select_action()
+    #     self.take_action(action)
+
+    def remember(self, state, action:int, reward, next_state):
         self.memory.append((state, action, reward, next_state))
         if len(self.memory) > MEMORY_SIZE:
-            self.memory.pop(0)
+            self.memory.popleft()
 
     def replay(self):
         if len(self.memory) < BATCH_SIZE:
@@ -79,7 +106,8 @@ class Person:
             next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
 
             with torch.no_grad():
-                target = reward + GAMMA * torch.max(self.model(next_state_tensor))
+                max_value, max_index = torch.max(self.model(next_state_tensor), dim=1)
+                target = reward + GAMMA * max_value
 
             q_values = self.model(state_tensor)
             loss = nn.MSELoss()(q_values[0][action], target)
@@ -88,31 +116,5 @@ class Person:
             loss.backward()
             self.optimizer.step()
 
-    # returns the next state
-    def take_action(self, action):
-        if action == "Earn":
-            self.earn()
-
-        else:
-            self.learn()
-
-    def earn(self):
-        self.income_for_the_round = self.potential_income
-        
-    def learn(self):
-        self.income_for_the_round = 0
-        self.education_level += EDUCATION_INCREASE
-
-class NNOfPerson(nn.module):
-    def __init__(self, input_dim, output_dim):
-        super(NNOfPerson, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, output_dim)
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        return self.fc3(x)
 
 
