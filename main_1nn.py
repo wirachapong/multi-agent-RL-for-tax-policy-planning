@@ -14,12 +14,12 @@ def main():
 
     for episode in range(num_episodes):
         print('Episode', episode)
-        total_reward_policy_planner += simulate_episode(env)[0]
-        
-        total_reward_individual += simulate_episode(env)[1]
+        reward_policy_planner, reward_individual = simulate_episode(env)
+        total_reward_policy_planner += reward_policy_planner
+        total_reward_individual += reward_individual
         # Optionally decrease epsilon over time to reduce exploration
         if EPSILON > 0.01:
-            EPSILON *= 0.995   
+            EPSILON *= 0.995  
 
     print(f"Total reward after {num_episodes} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 
