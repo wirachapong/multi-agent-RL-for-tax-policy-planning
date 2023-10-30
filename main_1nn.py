@@ -10,7 +10,7 @@ def main():
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 50  # You might need more episodes for training
+    num_episodes = 130  # You might need more episodes for training
 
     for episode in range(num_episodes):
         print('Episode', episode)
