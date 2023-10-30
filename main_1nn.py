@@ -1,12 +1,12 @@
 # main.py
-from environment import Environment
+from environment_1nn import Environment_1nn
 from policyplanneragent import PolicyPlannerAgent
-from person import Person
+from person_1nn import Person_1nn
 from constants import NUM_PERSONS
 
 def main():
     
-    env = Environment(NUM_PERSONS)
+    env = Environment_1nn(NUM_PERSONS)
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
