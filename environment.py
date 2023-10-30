@@ -4,10 +4,8 @@ from policyplanneragent import PolicyPlannerAgent
 import numpy as np
 from constants import EDUCATION_EARNINGS,EDUCATION_LEVELS,EXPENSE,NUM_PERSONS,ACTIONS
 
-
-
 class Environment:
-    def __init__(self, n_persons):
+    def __init__(self, n_persons:int):
         #self.persons = [Person(self.NNOfPerson,np.random.choice(EDUCATION_LEVELS)) for _ in range(n_persons)]
         
         # # Starts with uniformly distributed educations levels:
@@ -18,9 +16,9 @@ class Environment:
         # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
 
         # Starts with same education level
-        education_level_turn0 = 1
-        net_worth_turn0 = 0
-        base_salary = 400
+        education_level_turn0 = 1.0
+        net_worth_turn0 = 0.0
+        base_salary = 400.0
         n_brackets = 7
         self.persons = [Person(i,  education_level_turn0, net_worth_turn0, base_salary) for i in range(n_persons)] 
 

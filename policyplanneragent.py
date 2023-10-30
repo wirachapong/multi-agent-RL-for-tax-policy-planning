@@ -12,7 +12,7 @@ from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SA
 # You can also move these to a separate configuration file or constants module.
 
 class QNetwork(nn.Module):
-    def __init__(self, input_dim, num_actions):
+    def __init__(self, input_dim:int, num_actions:int):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
@@ -25,7 +25,7 @@ class QNetwork(nn.Module):
         return x.view(-1, 3, 7) 
 
 class PolicyPlannerAgent:
-    def __init__(self, input_dim, num_actions):
+    def __init__(self, input_dim:int, num_actions:int):
         self.model = QNetwork(input_dim, num_actions)
         self.current_tax_rate = [10,12,22,24,32,35,37]
         self.memory = deque()  # For experience replay
@@ -87,7 +87,7 @@ class PolicyPlannerAgent:
         # this is the old back bone so we will probably change it later
         return total_cost
     
-    def tax_rate_for_income(self, income, bracket_gap=5000):
+    def tax_rate_for_income(self, income, bracket_gap:int=5000):
 
         brackets = self.current_tax_rate
         # Calculate the person's income bracket based on their income.
@@ -102,7 +102,7 @@ class PolicyPlannerAgent:
 
         return person_income, tax_income
     
-    def apply_tax(self, persons, brackets, bracket_gap=5000):
+    def apply_tax(self, persons, brackets, bracket_gap:int=5000):
         accumulated_tax=0
         for person in persons:
             # Calculate the person's income bracket based on their income.

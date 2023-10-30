@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from collections import deque
+from NNOfPerson import NNOfPerson
+
 # def id_generator_function():
 #     """Generate integers 0, 1, 2, and so on."""
 #     task_id = 0
@@ -14,7 +16,7 @@ from collections import deque
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx, education_level, net_worth, base_salary = 400, epsilon=0.1):
+    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
@@ -76,7 +78,7 @@ class Person:
                 return int(max_indices) # 0-> earn, 1-> learn
     
     # returns the next state
-    def take_action(self, action, tax_function):
+    def take_action(self, action:int, tax_function):
         if action == 0: # Earn
             self.earn(tax_function)
 
@@ -87,7 +89,7 @@ class Person:
     #     action = self.select_action()
     #     self.take_action(action)
 
-    def remember(self, state, action, reward, next_state):
+    def remember(self, state, action:int, reward, next_state):
         self.memory.append((state, action, reward, next_state))
         if len(self.memory) > MEMORY_SIZE:
             self.memory.popleft()
@@ -114,16 +116,5 @@ class Person:
             loss.backward()
             self.optimizer.step()
 
-class NNOfPerson(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(NNOfPerson, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, output_dim)
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        return self.fc3(x)
 
 
