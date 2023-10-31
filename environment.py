@@ -3,6 +3,7 @@ from person import Person
 from policyplanneragent import PolicyPlannerAgent
 import numpy as np
 from constants import EDUCATION_EARNINGS,EDUCATION_LEVELS,EXPENSE,NUM_PERSONS,ACTIONS
+from double_auction import *
 
 class Environment:
     def __init__(self, n_persons:int):
@@ -16,7 +17,7 @@ class Environment:
         # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
 
         # Starts with same education level
-        education_level_turn0 = 1.0
+        education_level_turn0 = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
         net_worth_turn0 = 0.0
         base_salary = 400.0
         n_brackets = 7
@@ -24,6 +25,7 @@ class Environment:
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
+        self.double_auction_system=DoubleAuction(commodities=["a","b","c"],agents=self.persons)
 
     # class PolicyPlannerAgent:
     #     def __init__(self, input_dim, num_actions):
@@ -101,4 +103,19 @@ class Environment:
         # if you want the environment to react based on the actions taken.
         
         next_state = self.get_state()
+        return next_state
+    
+    def persons_do_auction(self):
+        # double_auction_system
+        for person in self.persons:
+            current_asking=self.double_auction_system.available_asks(person)
+            self.double_auction_system
+        
+        next_state= self.get_state()
+        return next_state
+    
+    def persons_gain_category_token(self):
+        for person in self.persons:
+            person.earn_category_token
+        next_state= self.get_state()
         return next_state

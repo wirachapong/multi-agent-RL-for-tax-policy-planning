@@ -36,7 +36,7 @@ class Person:
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
         self.category = category
-        self.category_token_value =0
+        self.category_token_value = {'A':0,'B':0,'C':0}
 
         
         self.state = [self.net_worth, self.potential_income]
@@ -44,6 +44,8 @@ class Person:
     
     # def update_net_worth(self):
     #     self.net_worth += self.earn()
+    def earn_category_token(self):
+        self.category_token_value[self.cateogory] += int(self.educational_level)
 
     def earn(self, tax_function):
         self.income_for_the_round = self.potential_income
