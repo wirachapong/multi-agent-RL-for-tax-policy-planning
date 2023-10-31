@@ -40,8 +40,6 @@ class Person:
         self.state = [self.net_worth, self.potential_income]
         self.action_space = [0, 1] # ["earn", "learn"]
     
-    # def update_net_worth(self):
-    #     self.net_worth += self.earn()
 
     def earn(self, tax_function):
         self.income_for_the_round = self.potential_income

@@ -10,7 +10,7 @@ def main():
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 130  # You might need more episodes for training
+    num_episodes = 100  # You might need more episodes for training
 
     for episode in range(num_episodes):
         print('Episode', episode)
@@ -43,6 +43,7 @@ def simulate_episode(env):
     #     person.replay()
 
     action = env.PolicyPlannerAgent.select_action(current_state)
+    print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state = env.persons_step()
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
