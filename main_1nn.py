@@ -3,6 +3,7 @@ from environment_1nn import Environment_1nn
 from policyplanneragent import PolicyPlannerAgent
 from person_1nn import Person_1nn
 from constants import NUM_PERSONS
+from double_auction import *
 
 def main():
     

@@ -4,6 +4,7 @@ from NNOfPerson import NNOfPerson
 from policyplanneragent import PolicyPlannerAgent
 from constants import ACTIONS
 import random
+from double_auction import *
 
 class Environment_1nn(Environment):
     def __init__(self, n_persons:int):
@@ -17,3 +18,5 @@ class Environment_1nn(Environment):
         self.persons = [Person_1nn(self.person_model, idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary) for idx in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
+
+        self.double_auction_system=DoubleAuction(commodities=["a","b","c"],agents=self.persons)

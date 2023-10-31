@@ -83,6 +83,47 @@ class DoubleAuction:
             c: {i: self._price_zeros() for i in range(self.n_agents)}
             for c in self.commodities
         }
+        # self.price_history = {
+        #     "commodity1": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+        #     "commodity2": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+        #     ...
+        # }
+
+        # self.bid_hists = {
+        #     "commodity1": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+        #     "commodity2": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+        #     ...
+        # }
+
+        # self.ask_hists = {
+        #     "commodity1": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+        #     "commodity2": {
+        #         0: [0.0, 0.0, 0.0],
+        #         1: [0.0, 0.0, 0.0],
+        #         ...
+        #     },
+
+}
 
     def _price_zeros(self):
         if 1 + self.price_ceiling - self.price_floor <= 0:
