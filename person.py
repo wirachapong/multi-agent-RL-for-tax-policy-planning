@@ -16,7 +16,7 @@ from NNOfPerson import NNOfPerson
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1):
+    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
@@ -35,11 +35,15 @@ class Person:
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
+        self.category = category
+        self.category_token_value =0
 
         
         self.state = [self.net_worth, self.potential_income]
         self.action_space = [0, 1] # ["earn", "learn"]
     
+    # def update_net_worth(self):
+    #     self.net_worth += self.earn()
 
     def earn(self, tax_function):
         self.income_for_the_round = self.potential_income
