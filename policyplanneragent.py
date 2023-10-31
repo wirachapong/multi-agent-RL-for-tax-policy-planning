@@ -33,7 +33,7 @@ class PolicyPlannerAgent:
         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
     def select_action(self, state):
-        if np.random.uniform(0, 1) < EPSILON:
+        if np.random.uniform(0, 1) < EPSILON or len(self.memory) < MEMORY_SIZE:
             return torch.tensor([np.random.choice(ACTIONS) for _ in range(len(self.current_tax_rate))])
 
         else:
@@ -79,56 +79,62 @@ class PolicyPlannerAgent:
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
-        accumulated_tax = self.apply_tax(persons, self.current_tax_rate)
+        
+        
+        # accumulated_tax = self.apply_tax(persons, self.current_tax_rate)
 
-        for person in persons:
-            person.net_worth+=accumulated_tax/len(persons)
+        # for person in persons:
+        #     person.net_worth+=accumulated_tax/len(persons)
         
         # this is the old back bone so we will probably change it later
         return total_cost
     
-    def tax_rate_for_income(self, income, bracket_gap:int=5000):
-
+    def tax_rate_for_income(self, income, bracket_gap:int=1000):
+        
         brackets = self.current_tax_rate
-        # Calculate the person's income bracket based on their income.
-        income_bracket_index = int(income / bracket_gap)
-        # Make sure we don't exceed the number of defined brackets.
-        if income_bracket_index > len(brackets) - 1:
-            income_bracket_index = len(brackets) - 1
+        income_bracket_index = min(int(income / bracket_gap), len(brackets)-1)
+        
+        income_over_last_index = income - income_bracket_index * bracket_gap
+        tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
 
-        tax_rate = brackets[income_bracket_index]
-        tax_income = (tax_rate / 100.0) * income
+        tax_income = tax_over_last_index
+        for i in range(income_bracket_index):
+            tax_income += (brackets[i]/100) * bracket_gap
+
         person_income = income - tax_income 
 
         return person_income, tax_income
     
-    def apply_tax(self, persons, brackets, bracket_gap:int=5000):
-        accumulated_tax=0
-        for person in persons:
-            # Calculate the person's income bracket based on their income.
-            income_bracket_index = int(person.income_for_the_round / bracket_gap)
-
-            # Make sure we don't exceed the number of defined brackets.
-            if income_bracket_index > len(brackets) - 1:
-                income_bracket_index = len(brackets) - 1
-
-            # Get the tax rate for the person's bracket.
-            tax_rate = brackets[income_bracket_index]
-
-            # Calculate the tax amount.
-            tax_amount = (tax_rate / 100.0) * person.income_for_the_round
-
-            accumulated_tax += tax_amount
-
-            # Deduct the tax from the person's income.
-            person.income_for_the_round -= tax_amount
-
-            return accumulated_tax
-
     #need to change this one
     def get_reward(self, total_cost, persons):  
         net_worth_sum = sum([person.net_worth for person in persons])
         reward = net_worth_sum - total_cost
         return reward
     
+    # def apply_tax(self, persons, brackets, bracket_gap:int=5000):
+    #     accumulated_tax=0
+    #     for person in persons:
+    #         # Calculate the person's income bracket based on their income.
+    #         income_bracket_index = int(person.income_for_the_round / bracket_gap)
+
+    #         # Make sure we don't exceed the number of defined brackets.
+    #         if income_bracket_index > len(brackets) - 1:
+    #             income_bracket_index = len(brackets) - 1
+
+    #         # Get the tax rate for the person's bracket.
+    #         tax_rate = brackets[income_bracket_index]
+
+    #         # Calculate the tax amount.
+    #         tax_amount = (tax_rate / 100.0) * person.income_for_the_round
+
+    #         accumulated_tax += tax_amount
+
+    #         # Deduct the tax from the person's income.
+    #         person.income_for_the_round -= tax_amount
+
+    #         return accumulated_tax
+
+    
+    
     # that the agent will use to interact with the environment.
+
