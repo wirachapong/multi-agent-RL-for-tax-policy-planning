@@ -123,6 +123,7 @@ class Environment:
                 self.bid_sell_system.update_bid_sell_price()
             elif person.bid_amount_A>=self.bid_sell_system.current_sell_price_A:
                 person.bid_history_A.append(person.bid_amount_A)
+                print(self.bid_sell_system.bid_dictionary_A)
                 idx_of_the_one_selling=self.bid_sell_system.bid_dictionary_A[person.bid_amount_A].popleft()
                 self.bid_sell_system.update_bid_sell_price()
                 person.category_token_value['A']+=2

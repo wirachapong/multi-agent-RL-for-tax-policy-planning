@@ -34,13 +34,13 @@ class BidSellSystem:
         self.sell_previous_round_B = {}
         self.sell_previous_round_C = {}
 
-        self.current_bid_price_A=0
-        self.current_bid_price_B=0
-        self.current_bid_price_C=0
+        self.current_bid_price_A=-1000
+        self.current_bid_price_B=-1000
+        self.current_bid_price_C=-1000
 
-        self.current_sell_price_A=0        
-        self.current_sell_price_B=0
-        self.current_sell_price_C=0
+        self.current_sell_price_A=1000        
+        self.current_sell_price_B=1000
+        self.current_sell_price_C=1000
 
     def clear_previous_round(self):
         # Clear previous round's bids for each token type

@@ -16,7 +16,7 @@ from NNOfPerson import NNOfPerson
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str):
+    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str='A'):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
