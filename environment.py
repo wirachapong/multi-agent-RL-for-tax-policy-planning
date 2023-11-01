@@ -151,8 +151,6 @@ class Environment:
                 person.net_worth-=person.sell_amount_A
                 # not sure if I should use net_worth or income_for_the_round or other things instead
                 self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_A
-            if person.bid_counter_A//10==0:
-                person.learn_sell_A()
 
 
     
@@ -192,8 +190,7 @@ class Environment:
                 person.net_worth-=person.sell_amount_B
                 # not sure if I should use net_worth or income_for_the_round or other things instead
                 self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_B
-            if person.bid_counter_B//10==0:
-                person.learn_sell_B()
+
 
 
 
@@ -234,8 +231,7 @@ class Environment:
                 person.net_worth-=person.sell_amount_C
                 # not sure if I should use net_worth or income_for_the_round or other things instead
                 self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_C
-            if person.bid_counter_C//10==0:
-                person.learn_sell_C()
+
             if full_combination_added==0:
                 person.reward_from_token.append(0)
             else:
