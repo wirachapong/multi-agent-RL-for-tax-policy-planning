@@ -37,6 +37,12 @@ class Person:
         self.tax_for_the_round = 0
         self.category = category
         self.category_token_value = {'A':0,'B':0,'C':0}
+        self.bid_amount_A=np.random.choice([1,2,3,4,5])
+        self.bid_amount_B=np.random.choice([1,2,3,4,5])
+        self.bid_amount_C=np.random.choice([1,2,3,4,5])
+        self.sell_amount_A=np.random.choice([1,2,3,4,5])
+        self.sell_amount_B=np.random.choice([1,2,3,4,5])
+        self.sell_amount_C=np.random.choice([1,2,3,4,5])
 
         
         self.state = [self.net_worth, self.potential_income]

@@ -109,7 +109,8 @@ class Environment:
         # double_auction_system
         for person in self.persons:
             current_asking=self.double_auction_system.available_asks(person)
-            self.double_auction_system
+            for token in ['A','B','C']:
+                able_to_bid = self.double_auction_system.can_bid(token,person)
         
         next_state= self.get_state()
         return next_state
