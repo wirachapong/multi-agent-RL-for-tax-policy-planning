@@ -4,6 +4,7 @@ from policyplanneragent import PolicyPlannerAgent
 import numpy as np
 from constants import EDUCATION_EARNINGS,EDUCATION_LEVELS,EXPENSE,NUM_PERSONS,ACTIONS
 from double_auction import *
+from bid_sell import *
 
 class Environment:
     def __init__(self, n_persons:int):
@@ -25,7 +26,7 @@ class Environment:
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
-        self.double_auction_system=DoubleAuction(commodities=["a","b","c"],agents=self.persons)
+        self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
 
     # class PolicyPlannerAgent:
     #     def __init__(self, input_dim, num_actions):

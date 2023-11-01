@@ -5,6 +5,7 @@ from policyplanneragent import PolicyPlannerAgent
 from constants import ACTIONS
 import random
 from double_auction import *
+from bid_sell import *
 
 class Environment_1nn(Environment):
     def __init__(self, n_persons:int):
@@ -20,4 +21,4 @@ class Environment_1nn(Environment):
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
 
-        self.double_auction_system=DoubleAuction(commodities=["A","B","C"],agents=self.persons)
+        self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
