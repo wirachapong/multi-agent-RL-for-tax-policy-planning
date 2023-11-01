@@ -10,22 +10,80 @@ class BidSellSystem:
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.bid_dictionary = {}
-        self.sell_dictionary = {}
-        self.bid_current_round = {}
-        self.sell_current_round = {}
-        self.bid_previous_round ={}
-        self.sell_previous_round = {}
-    
+        self.bid_dictionary_A = {}
+        self.bid_dictionary_B = {}
+        self.bid_dictionary_C = {}
+
+        self.sell_dictionary_A = {}
+        self.sell_dictionary_B = {}
+        self.sell_dictionary_C = {}
+
+        self.bid_current_round_A = {}
+        self.bid_current_round_B = {}
+        self.bid_current_round_C = {}
+
+        self.sell_current_round_A = {}
+        self.sell_current_round_B = {}
+        self.sell_current_round_C = {}
+
+        self.bid_previous_round_A = {}
+        self.bid_previous_round_B = {}
+        self.bid_previous_round_C = {}
+
+        self.sell_previous_round_A = {}
+        self.sell_previous_round_B = {}
+        self.sell_previous_round_C = {}
+
+        self.current_bid_price_A=0
+        self.current_bid_price_B=0
+        self.current_bid_price_C=0
+
+        self.current_sell_price_A=0        
+        self.current_sell_price_B=0
+        self.current_sell_price_C=0
+
     def clear_previous_round(self):
-        # Remove bids from the previous round from the bid dictionary
-        for bid_key in self.bid_previous_round:
-            if bid_key in self.bid_dictionary:
-                del self.bid_dictionary[bid_key]
+        # Clear previous round's bids for each token type
+        for bid_key in self.bid_previous_round_A:
+            if bid_key in self.bid_dictionary_A:
+                del self.bid_dictionary_A[bid_key]
+        
+        for bid_key in self.bid_previous_round_B:
+            if bid_key in self.bid_dictionary_B:
+                del self.bid_dictionary_B[bid_key]
+        
+        for bid_key in self.bid_previous_round_C:
+            if bid_key in self.bid_dictionary_C:
+                del self.bid_dictionary_C[bid_key]
 
-        # Remove sells from the previous round from the sell dictionary
-        for sell_key in self.sell_previous_round:
-            if sell_key in self.sell_dictionary:
-                del self.sell_dictionary[sell_key]
+        # Clear previous round's sells for each token type
+        for sell_key in self.sell_previous_round_A:
+            if sell_key in self.sell_dictionary_A:
+                del self.sell_dictionary_A[sell_key]
+        
+        for sell_key in self.sell_previous_round_B:
+            if sell_key in self.sell_dictionary_B:
+                del self.sell_dictionary_B[sell_key]
+        
+        for sell_key in self.sell_previous_round_C:
+            if sell_key in self.sell_dictionary_C:
+                del self.sell_dictionary_C[sell_key]
 
-    
+    def update_bid_sell_price(self):
+        # For A
+        if self.bid_dictionary_A:
+            self.current_bid_price_A = max(self.bid_dictionary_A.keys())
+        if self.sell_dictionary_A:
+            self.current_sell_price_A = min(self.sell_dictionary_A.keys())
+
+        # For B
+        if self.bid_dictionary_B:
+            self.current_bid_price_B = max(self.bid_dictionary_B.keys())
+        if self.sell_dictionary_B:
+            self.current_sell_price_B = min(self.sell_dictionary_B.keys())
+
+        # For C
+        if self.bid_dictionary_C:
+            self.current_bid_price_C = max(self.bid_dictionary_C.keys())
+        if self.sell_dictionary_C:
+            self.current_sell_price_C = min(self.sell_dictionary_C.keys())

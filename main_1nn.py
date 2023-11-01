@@ -46,8 +46,7 @@ def simulate_episode(env):
     #     #! Maybe not do this to batch training later instead
     #     person.replay()
     next_state0= env.persons_gain_category_token()
-
-    next_state1= env.persons_do_auction()
+    next_state1= env.persons_do_bid_sell() # learn of buying and selling is already included in here
     action = env.PolicyPlannerAgent.select_action(next_state1)
     print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
