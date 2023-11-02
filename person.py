@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import deque
 from NNOfPerson import NNOfPerson
+import random
 
 # def id_generator_function():
 #     """Generate integers 0, 1, 2, and so on."""
@@ -263,3 +264,5 @@ class Person:
             return True
         else:
             return False
+    
+    
