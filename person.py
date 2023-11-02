@@ -245,3 +245,21 @@ class Person:
     def update_sell_token_transaction_history_C(self,amount_money):
         self.sell_history_C.append(amount_money)    
         self.sell_counter_C+=1
+
+    def can_sell_A(self):
+        if self.category_token_value['A']>2:
+            return True
+        else:
+            return False
+
+    def can_sell_B(self):
+        if self.category_token_value['B']>2:
+            return True
+        else:
+            return False
+        
+    def can_sell_C(self):
+        if self.category_token_value['C']>2:
+            return True
+        else:
+            return False

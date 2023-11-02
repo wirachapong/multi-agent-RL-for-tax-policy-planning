@@ -11,9 +11,10 @@ def main():
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 100  # You might need more episodes for training
+    num_episodes = 1000  # You might need more episodes for training
 
     for episode in range(num_episodes):
+
         print('Episode', episode)
         reward_policy_planner, reward_individual = simulate_episode(env)
         total_reward_policy_planner += reward_policy_planner
@@ -46,8 +47,9 @@ def simulate_episode(env):
     #     #! Maybe not do this to batch training later instead
     #     person.replay()
     next_state0= env.persons_gain_category_token()
-    next_state1= env.persons_do_bid_sell() # learn of buying and selling is already included in here
-    action = env.PolicyPlannerAgent.select_action(next_state1)
+    next_state1= env.fill_random_action_history()
+    next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
+    action = env.PolicyPlannerAgent.select_action(next_state2)
     print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state2 = env.persons_step()
