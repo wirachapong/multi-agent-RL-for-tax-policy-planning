@@ -105,8 +105,17 @@ class PolicyPlannerAgent:
 
         return person_income, tax_income
     
+    def get_gini(self, persons):
+        x = [person.net_worth for person in persons]
+        total = 0
+        for i, xi in enumerate(x[:-1], 1):
+            total += np.sum(np.abs(xi - x[i:]))
+        return total / (len(x)**2 * np.mean(x))
+        
     #need to change this one
     def get_reward(self, total_cost, persons):  
+        gini = self.get_gini(persons)
+        
         net_worth_sum = sum([person.net_worth for person in persons])
         reward = net_worth_sum - total_cost
         return reward
