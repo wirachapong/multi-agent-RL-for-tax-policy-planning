@@ -123,8 +123,6 @@ class DoubleAuction:
         #         ...
         #     },
 
-}
-
     def _price_zeros(self):
         if 1 + self.price_ceiling - self.price_floor <= 0:
             print("ERROR!", self.price_ceiling, self.price_floor)

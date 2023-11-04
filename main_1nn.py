@@ -11,9 +11,10 @@ def main():
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 100  # You might need more episodes for training
+    num_episodes = 1000  # You might need more episodes for training
 
     for episode in range(num_episodes):
+
         print('Episode', episode)
         reward_policy_planner, reward_individual = simulate_episode(env)
         total_reward_policy_planner += reward_policy_planner
@@ -23,6 +24,9 @@ def main():
             EPSILON *= 0.995  
 
     print(f"Total reward after {num_episodes} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+
+# Hino: I currently set the action flow of the double auction to be done in the simulate episode too
+#  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode. 
 
 def simulate_episode(env):
     current_state = env.get_state()
@@ -42,15 +46,17 @@ def simulate_episode(env):
         
     #     #! Maybe not do this to batch training later instead
     #     person.replay()
-
-    action = env.PolicyPlannerAgent.select_action(current_state)
+    next_state0= env.persons_gain_category_token()
+    next_state1= env.fill_random_action_history()
+    next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
+    action = env.PolicyPlannerAgent.select_action(next_state2)
     print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
-    next_state = env.persons_step()
+    next_state2 = env.persons_step()
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     
     # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
-    env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state)
+    env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
     env.PolicyPlannerAgent.replay()  # Experience replay
 
     total_reward_individual = sum([person.get_reward() for person in env.persons])

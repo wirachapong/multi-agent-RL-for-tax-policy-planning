@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import deque
 from NNOfPerson import NNOfPerson
+import random
 
 # def id_generator_function():
 #     """Generate integers 0, 1, 2, and so on."""
@@ -16,7 +17,7 @@ from NNOfPerson import NNOfPerson
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str):
+    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str='A'):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
@@ -36,14 +37,38 @@ class Person:
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
         self.category = category
-        self.category_token_value =0
+        self.category_token_value = {'A':0,'B':0,'C':0}
+        self.bid_amount_A=np.random.choice([1,2,3,4,5])
+        self.bid_amount_B=np.random.choice([1,2,3,4,5])
+        self.bid_amount_C=np.random.choice([1,2,3,4,5])
+        self.sell_amount_A=np.random.choice([1,2,3,4,5])
+        self.sell_amount_B=np.random.choice([1,2,3,4,5])
+        self.sell_amount_C=np.random.choice([1,2,3,4,5])
 
-        
+        self.bid_history_A = deque(maxlen=100)
+        self.bid_counter_A = 0
+        self.sell_history_A = deque(maxlen=100)
+        self.sell_counter_A = 0
+
+        self.bid_history_B = deque(maxlen=100)
+        self.bid_counter_B = 0
+        self.sell_history_B = deque(maxlen=100)
+        self.sell_counter_B = 0
+
+        self.bid_history_C = deque(maxlen=100)
+        self.bid_counter_C = 0
+        self.sell_history_C = deque(maxlen=100)
+        self.sell_counter_C = 0
+
+        self.reward_from_token = deque(maxlen=100)
+
         self.state = [self.net_worth, self.potential_income]
         self.action_space = [0, 1] # ["earn", "learn"]
     
     # def update_net_worth(self):
     #     self.net_worth += self.earn()
+    def earn_category_token(self):
+        self.category_token_value[self.cateogory] += int(self.educational_level)
 
     def earn(self, tax_function):
         self.income_for_the_round = self.potential_income
@@ -118,5 +143,126 @@ class Person:
             loss.backward()
             self.optimizer.step()
 
+    def check_full_combination(self):
+        if self.category_token_value['A']>=10 and self.category_token_value['B']>=10 and self.category_token_value['C']>=10:
+            self.net_worth+=100
+            self.category_token_value['A']-=10
+            self.category_token_value['B']-=10
+            self.category_token_value['C']-=10
+            return 1
+        else:
+            self.reward_from_token.append(0)
+            return 0
+    def learn_bid_A(self):
+        # count_bid=sum(1 for elem in self.bid_history_A if elem != 0)
+        sum_bid=sum(self.bid_history_A) # ไปเติมเคสที่บิดเป็น0ด้วยจ้า
+        sum_reward=sum(self.reward_from_token)
+        result= sum_reward-sum_bid
+        if result>0:
+            self.bid_amount_A+=0.1
+            self.sell_amount_A-=0.1
+        else: 
+            self.bid_amount_A-=0.1
+            self.sell_amount_A+=0.1
 
+    # def learn_sell_A(self):
+    #     count_sell=sum(1 for elem in self.sell_history_A if elem != 0)
+    #     sum_sell=sum(self.sell_history_A)
+    #     sum_reward=sum(self.reward_from_token)
+    #     result = (sum_reward+sum_sell)/count_sell
+    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
+    #         self.sell_amount_A+=0.1
+    #     else: 
+    #         self.sell_amount_A-=0.1
 
+    def update_bid_token_transaction_history_A(self,amount_money):
+        self.bid_history_A.append(amount_money)
+        self.bid_counter_A+=1
+
+    def update_sell_token_transaction_history_A(self,amount_money):
+        self.sell_history_A.append(amount_money)    
+        self.sell_counter_A+=1
+
+    def learn_bid_B(self):
+        # - Input =  how many things they buy
+        # - Reward = how much money they got- sum of cost they spent
+        # count_bid=sum(1 for elem in self.bid_history_B if elem != 0)
+        sum_bid=sum(self.bid_history_B) # ไปเติมเคสที่บิดเป็น0ด้วยจ้า
+        sum_reward=sum(self.reward_from_token)
+        result= sum_reward-sum_bid
+        if result>0:
+            self.bid_amount_B+=0.1
+            self.sell_amount_C-=0.1
+        else: 
+            self.bid_amount_B-=0.1
+            self.sell_amount_C+=0.1
+
+    # def learn_sell_B(self):
+    #     count_sell=sum(1 for elem in self.sell_history_B if elem != 0)
+    #     sum_sell=sum(self.sell_history_B)
+    #     sum_reward=sum(self.reward_from_token)
+    #     result = (sum_reward+sum_sell)/count_sell
+    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
+    #         self.sell_amount_B+=0.1
+    #     else: 
+    #         self.sell_amount_B-=0.1
+
+    def update_bid_token_transaction_history_B(self,amount_money):
+        self.bid_history_B.append(amount_money)
+        self.bid_counter_B+=1
+
+    def update_sell_token_transaction_history_B(self,amount_money):
+        self.sell_history_B.append(amount_money)    
+        self.sell_counter_B+=1
+
+    def learn_bid_C(self):
+        # - Input =  how many things they buy
+        # - Reward = how much money they got- sum of cost they spent
+        # count_bid=sum(1 for elem in self.bid_history_C if elem != 0)
+        sum_bid=sum(self.bid_history_C) # ไปเติมเคสที่บิดเป็น0ด้วยจ้า
+        sum_reward=sum(self.reward_from_token)
+        result= sum_reward-sum_bid
+        if result>0:
+            self.bid_amount_C+=0.1
+            self.sell_amount_C-=0.1
+        else: 
+            self.bid_amount_C-=0.1
+            self.sell_amount_C+=0.1
+
+    # def learn_sell_C(self):
+    #     # count_sell=sum(1 for elem in self.sell_history_C if elem != 0)
+    #     sum_sell=sum(self.sell_history_C)
+    #     sum_reward=sum(self.reward_from_token)
+    #     result = sum_reward+sum_sell
+    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
+    #         self.sell_amount_C+=0.1
+    #     else: 
+    #         self.sell_amount_C-=0.1
+
+    def update_bid_token_transaction_history_C(self,amount_money):
+        self.bid_history_C.append(amount_money)
+        self.bid_counter_C+=1
+
+    def update_sell_token_transaction_history_C(self,amount_money):
+        self.sell_history_C.append(amount_money)    
+        self.sell_counter_C+=1
+
+    def can_sell_A(self):
+        if self.category_token_value['A']>2:
+            return True
+        else:
+            return False
+
+    def can_sell_B(self):
+        if self.category_token_value['B']>2:
+            return True
+        else:
+            return False
+        
+    def can_sell_C(self):
+        if self.category_token_value['C']>2:
+            return True
+        else:
+            return False
+    
+    
