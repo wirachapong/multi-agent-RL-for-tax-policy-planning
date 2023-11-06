@@ -10,9 +10,9 @@ def main():
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 130  # You might need more episodes for training
+    NUM_EPISODES = 130  # You might need more episodes for training
 
-    for episode in range(num_episodes):
+    for episode in range(NUM_EPISODES):
         print('Episode', episode)
         reward_policy_planner, reward_individual = simulate_episode(env)
         total_reward_policy_planner += reward_policy_planner
@@ -21,7 +21,7 @@ def main():
         if EPSILON > 0.01:
             EPSILON *= 0.995   
 
-    print(f"Total reward after {num_episodes} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+    print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 
 def simulate_episode(env):
     current_state = env.get_state()

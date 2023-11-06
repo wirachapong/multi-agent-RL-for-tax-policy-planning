@@ -7,14 +7,16 @@ from double_auction import *
 
 def main():
     
-    env = Environment_1nn(NUM_PERSONS)
+    
     EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    num_episodes = 1000  # You might need more episodes for training
+    NUM_EPISODES = 1000  # You might need more episodes for training
+    env = Environment_1nn(NUM_PERSONS)
 
-    for episode in range(num_episodes):
-        if episode == num_episodes - 1:
+
+    for episode in range(NUM_EPISODES):
+        if episode == NUM_EPISODES - 1:
             is_terminal_state = True
         else:
             is_terminal_state = False
@@ -28,7 +30,7 @@ def main():
         if EPSILON > 0.01:
             EPSILON *= 0.995  
 
-    print(f"Total reward after {num_episodes} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+    print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 
 # Hino: I currently set the action flow of the double auction to be done in the simulate episode too
 #  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode. 
