@@ -63,7 +63,7 @@ def main():
 #  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode.
 
 def simulate_episode(env, is_terminal_state=False):
-    print("step1")
+
     current_state = env.get_state()
     #! Either this in main.py or in Environment.py
     # #  Here should be the space that each individual start doing actions
@@ -84,22 +84,13 @@ def simulate_episode(env, is_terminal_state=False):
 
     next_state1= env.fill_random_action_history()
     
-    print("step4")
-    print("persons before")
-    #print(env.bid_sell_system.bid_dictionary_A,env.bid_sell_system.bid_dictionary_B,env.bid_sell_system.bid_dictionary_C,env.bid_sell_system.sell_dictionary_A,env.bid_sell_system.sell_dictionary_B,env.bid_sell_system.sell_dictionary_C, env.bid_sell_system.bid_current_round_A,env.bid_sell_system.bid_previous_round_A)
-    print(env.bid_sell_system.bid_dictionary_B)
-    
+
     next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
 
 
     next_state3= env.bid_sell_system.clear_previous_round()
-    print("persons after")
-    #print(env.bid_sell_system.bid_dictionary_A,env.bid_sell_system.bid_dictionary_B,env.bid_sell_system.bid_dictionary_C,env.bid_sell_system.sell_dictionary_A,env.bid_sell_system.sell_dictionary_B,env.bid_sell_system.sell_dictionary_C, env.bid_sell_system.bid_current_round_A,env.bid_sell_system.bid_previous_round_A)
-    print(env.bid_sell_system.bid_dictionary_B)
 
-    print("end of testing")
     action = env.PolicyPlannerAgent.select_action(next_state3)
-    print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
@@ -107,7 +98,7 @@ def simulate_episode(env, is_terminal_state=False):
     # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
     env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
     env.PolicyPlannerAgent.replay()  # Experience replay
-
+    env.bid_sell_system.end_round()
     total_reward_individual = sum([person.get_reward() for person in env.persons])
     return [reward_policy_planner, total_reward_individual]
 
