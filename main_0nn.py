@@ -58,7 +58,7 @@ def simulate_episode(env, is_terminal_state=False):
     next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
     action = env.PolicyPlannerAgent.select_action(next_state2)
     print(action)
-    total_cost = env.PolicyPlannerAgent.apply_action(action)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected. 
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     
