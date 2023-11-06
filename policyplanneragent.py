@@ -5,7 +5,7 @@ import numpy as np
 import random
 from collections import deque
 
-from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SALARIES
+from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SALARIES, W_EQUALITY, BRACKET_GAP
 
 
 # Constants for the agent and learning process.
@@ -82,17 +82,17 @@ class PolicyPlannerAgent:
         
         return total_cost
     
-    def tax_rate_for_income(self, income, bracket_gap:int=1000):
+    def tax_rate_for_income(self, income):
         
         brackets = self.current_tax_rate
-        income_bracket_index = min(int(income / bracket_gap), len(brackets)-1)
+        income_bracket_index = min(int(income / BRACKET_GAP), len(brackets)-1)
         
-        income_over_last_index = income - income_bracket_index * bracket_gap
+        income_over_last_index = income - income_bracket_index * BRACKET_GAP
         tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
 
         tax_income = tax_over_last_index
         for i in range(income_bracket_index):
-            tax_income += (brackets[i]/100) * bracket_gap
+            tax_income += (brackets[i]/100) * BRACKET_GAP
 
         person_income = income - tax_income 
 
@@ -106,18 +106,18 @@ class PolicyPlannerAgent:
         return total / (len(x)**2 * np.mean(x))
         
     #need to change this one
-    def get_reward(self, total_cost, persons, w_equality):  
+    def get_reward(self, total_cost, persons):  
         gini = self.get_gini(persons)
 
         net_worth_sum = sum([person.net_worth for person in persons])
         reward = net_worth_sum - total_cost
         return reward
     
-    # def apply_tax(self, persons, brackets, bracket_gap:int=5000):
+    # def apply_tax(self, persons, brackets, BRACKET_GAP:int=5000):
     #     accumulated_tax=0
     #     for person in persons:
     #         # Calculate the person's income bracket based on their income.
-    #         income_bracket_index = int(person.income_for_the_round / bracket_gap)
+    #         income_bracket_index = int(person.income_for_the_round / BRACKET_GAP)
 
     #         # Make sure we don't exceed the number of defined brackets.
     #         if income_bracket_index > len(brackets) - 1:

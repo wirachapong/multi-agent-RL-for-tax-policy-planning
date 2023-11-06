@@ -7,14 +7,17 @@ from double_auction import *
 from bid_sell import *
 
 class Environment_0nn(Environment):
-    def __init__(self, n_persons:int):
+    def __init__(self, n_persons:int, horizon: int):
         available_category_of_person = ["A","B","C"]
         education_level_turn0 = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
         net_worth_turn0 = 0.0
         base_salary = 400.0
         n_brackets = 7
+        
+        # For person decisions
+        self.horizon = horizon
         self.time_step = 0
-
+        
         self.persons = [Person_0nn(idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary) for idx in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))

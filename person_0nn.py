@@ -3,8 +3,8 @@ from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE
 
 class Person_0nn(Person):
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float=0.1, category:str='A'):
-        super().__init__(idx, education_level, net_worth, base_salary, epsilon, category)
+    def __init__(self, idx:int, education_level:float, net_worth:float, epsilon:float=0.1, category:str='A'):
+        super().__init__(idx, education_level, net_worth, epsilon, category)
 
         # No neural network for decision making
         self.model = None

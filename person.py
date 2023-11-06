@@ -1,4 +1,4 @@
-from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE, MEMORY_SIZE, EDUCATION_INCREASE
+from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE, MEMORY_SIZE, EDUCATION_INCREASE, BASE_SALARY
 import numpy as np
 import torch
 import torch.nn as nn
@@ -9,7 +9,7 @@ from NNOfPerson import NNOfPerson
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, base_salary:float = 400.0, epsilon:float = 0.1, category:str='A'):
+    def __init__(self, idx:int, education_level:float, net_worth:float, epsilon:float = 0.1, category:str='A'):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
@@ -24,7 +24,7 @@ class Person:
         # Value trackings
         self.net_worth = net_worth
         self.education_level = education_level
-        self.base_salary = base_salary
+        self.base_salary = BASE_SALARY
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
