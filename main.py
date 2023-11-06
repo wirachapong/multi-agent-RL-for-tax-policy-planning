@@ -1,6 +1,8 @@
 # main.py
 import configuration
 from environment import Environment
+from environment_0nn import Environment_0nn
+from environment_1nn import Environment_1nn
 from policyplanneragent import PolicyPlannerAgent
 from person_1nn import Person_1nn
 from double_auction import *
