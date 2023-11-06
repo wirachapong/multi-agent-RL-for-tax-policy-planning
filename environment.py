@@ -1,12 +1,13 @@
 # environment.py
+import configuration
 from person import Person
 from policyplanneragent import PolicyPlannerAgent
 import numpy as np
-from constants import EDUCATION_EARNINGS,EDUCATION_LEVELS,EXPENSE,NUM_PERSONS,ACTIONS
 from double_auction import *
 from bid_sell import *
 from collections import deque
 import random
+from configuration import config
 
 class Environment:
     def __init__(self, n_persons:int):
@@ -25,7 +26,7 @@ class Environment:
         n_brackets = 7
         self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(n_persons)] 
 
-        self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
+        self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
         self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
 

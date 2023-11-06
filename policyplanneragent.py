@@ -2,10 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-import random
 from collections import deque
 
-from constants import GAMMA, ALPHA,EPSILON, BATCH_SIZE, MEMORY_SIZE, ACTIONS, SALARIES, W_EQUALITY, BRACKET_GAP
+import configuration
 
 
 # Constants for the agent and learning process.
@@ -30,11 +29,12 @@ class PolicyPlannerAgent:
         self.current_tax_rate = [10,12,22,24,32,35,37]
         self.memory = deque()  # For experience replay
         self.history_of_auctions = []
-        self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_POLICY"))
 
     def select_action(self, state):
-        if np.random.uniform(0, 1) < EPSILON or len(self.memory) < MEMORY_SIZE:
-            return torch.tensor([np.random.choice(ACTIONS) for _ in range(len(self.current_tax_rate))])
+        if (np.random.uniform(0, 1) < configuration.config.get_constant("EPSILON_POLICY")
+                or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_POLICY")):
+            return torch.tensor([np.random.choice(configuration.config.get_constant("ACTIONS")) for _ in range(len(self.current_tax_rate))])
 
         else:
             with torch.no_grad():
@@ -47,15 +47,15 @@ class PolicyPlannerAgent:
 
     def remember(self, state, action, reward, next_state):
         self.memory.append((state, action, reward, next_state))
-        if len(self.memory) > MEMORY_SIZE:
+        if len(self.memory) > configuration.config.get_constant("MEMORY_SIZE_POLICY"):
             #self.memory.pop(0)
             self.memory.popleft()
 
     def replay(self):
-        if len(self.memory) < BATCH_SIZE:
+        if len(self.memory) < configuration.config.get_constant("BATCH_SIZE_POLICY"):
             return
 
-        batch_indices = np.random.choice(len(self.memory), BATCH_SIZE, replace=False)
+        batch_indices = np.random.choice(len(self.memory), configuration.config.get_constant("BATCH_SIZE_POLICY"), replace=False)
         batch = [self.memory[i] for i in batch_indices]
 
         for state, action, reward, next_state in batch:
@@ -64,7 +64,7 @@ class PolicyPlannerAgent:
 
             with torch.no_grad():
                 max_values, max_indices = torch.max(self.model(next_state_tensor), dim=1)
-                target = reward + GAMMA * max_values
+                target = reward + configuration.config.get_constant("GAMMA_POLICY") * max_values
 
             q_values = self.model(state_tensor)
             loss = nn.MSELoss()(q_values[0][action], target)
@@ -85,6 +85,7 @@ class PolicyPlannerAgent:
     def tax_rate_for_income(self, income):
         
         brackets = self.current_tax_rate
+        BRACKET_GAP = configuration.config.get_constant("BRACKET_GAP")
         income_bracket_index = min(int(income / BRACKET_GAP), len(brackets)-1)
         
         income_over_last_index = income - income_bracket_index * BRACKET_GAP

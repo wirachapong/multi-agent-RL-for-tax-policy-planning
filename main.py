@@ -1,42 +1,64 @@
 # main.py
-from environment_1nn import Environment_1nn
-from environment_0nn import Environment_0nn
+import configuration
 from environment import Environment
 from policyplanneragent import PolicyPlannerAgent
 from person_1nn import Person_1nn
-from constants import NUM_PERSONS
 from double_auction import *
+import environment_0nn
+import argparse
+from configuration import Configuration, config
+import json
+
+
+
 
 def main():
-    
-    EPSILON = 0.1  # Consider moving constants to a separate config file or module
+    parser = argparse.ArgumentParser(description="Your Application Description")
+    # Add the "--config-file" argument with a default value
+    parser.add_argument(
+        "--config-file",
+        help="Path to the configuration file",
+        default="config.json"  # Specify the default file location here
+    )
+
+    args = parser.parse_args()
+
+    configuration.config = Configuration(args.config_file)
+
+
+
+    env = Environment(configuration.config.get_constant("NUM_PERSONS"))
+    # EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    NUM_EPISODES = 3  # You might need more episodes for training
+    NUM_EPISODES = 1000  # You might need more episodes for training
+    EPSILON = configuration.config.get_constant("EPSILON_POLICY")
+    NUM_EPISODES = configuration.config.get_constant("NUM_EPISODES")
 
-    env = Environment_0nn(NUM_PERSONS, NUM_EPISODES)    # With best response agents
+
+    env = Environment_0nn(configuration.config.get_constant("NUM_PERSONS"), NUM_EPISODES)    # With best response agents
     # env = Environment_1nn(NUM_PERSONS)                # With 1 neural network for persons
     # env = Environment(NUM_PERSONS)                    # With neural network for each person
-    
+
     for episode in range(NUM_EPISODES):
         if episode == NUM_EPISODES - 1:
             is_terminal_state = True
         else:
             is_terminal_state = False
-        
+
         print('Episode', episode)
-        
+
         reward_policy_planner, reward_individual = simulate_episode(env, is_terminal_state)
         total_reward_policy_planner += reward_policy_planner
         total_reward_individual += reward_individual
         # Optionally decrease epsilon over time to reduce exploration
         if EPSILON > 0.01:
-            EPSILON *= 0.995  
+            EPSILON *= 0.995
 
     print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 
 # Hino: I currently set the action flow of the double auction to be done in the simulate episode too
-#  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode. 
+#  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode.
 
 def simulate_episode(env, is_terminal_state=False):
     print("step1")
@@ -77,7 +99,7 @@ def simulate_episode(env, is_terminal_state=False):
     action = env.PolicyPlannerAgent.select_action(next_state3)
     print(action)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
-    next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected. 
+    next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     
     # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
