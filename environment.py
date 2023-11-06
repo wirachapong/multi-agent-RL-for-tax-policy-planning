@@ -110,13 +110,13 @@ class Environment:
     
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         for person in self.persons:
-            self.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
-            self.bid_history_B=self.create_random_deque(100,0,4,5,60,20)
-            self.bid_history_C=self.create_random_deque(100,0,4,5,60,20)
-            self.sell_history_A=self.create_random_deque(100,0,4,5,60,20)
-            self.sell_history_B=self.create_random_deque(100,0,4,5,60,20)
-            self.sell_history_C=self.create_random_deque(100,0,4,5,60,20)
-            self.reward_from_token=self.create_random_deque(100,0,0,100,60,35)
+            person.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
+            person.bid_history_B=self.create_random_deque(100,0,4,5,60,20)
+            person.bid_history_C=self.create_random_deque(100,0,4,5,60,20)
+            person.sell_history_A=self.create_random_deque(100,0,4,5,60,20)
+            person.sell_history_B=self.create_random_deque(100,0,4,5,60,20)
+            person.sell_history_C=self.create_random_deque(100,0,4,5,60,20)
+            person.reward_from_token=self.create_random_deque(100,0,0,100,60,35)
         next_state = self.get_state()
         # self.bid_sell_system.bid_dictionary_A
         # self.bid_sell_system.bid_dictionary_B
@@ -140,17 +140,21 @@ class Environment:
         full_combination_added=0
 
         for person in self.persons: 
-            if person.bid_amount_A>=self.bid_sell_system.current_sell_price_A and self.bid_sell_system.can_buy_A():
-                person.bid_history_A.append(person.bid_amount_A)
-                print(self.bid_sell_system.bid_dictionary_A)
-                idx_of_the_one_selling=self.bid_sell_system.bid_dictionary_A[person.bid_amount_A].popleft()
-                self.bid_sell_system.update_bid_sell_price()
-                person.category_token_value['A']+=2
-                self.persons[idx_of_the_one_selling].category_token_value['A']-=2
-                person.net_worth-=person.bid_amount_A
-                # not sure if I should use net_worth or income_for_the_round or other things instead
-                self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_A
-                full_combination_added+=person.check_full_combination()
+            if person.bid_amount_A>=self.bid_sell_system.current_sell_price_A:
+                smallest_key_less_than_amount = None
+                for key in sorted(self.bid_sell_system.bid_dictionary_A):
+                    if key < person.bid_amount_A and (smallest_key_less_than_amount is None or key > smallest_key_less_than_amount):
+                        smallest_key_less_than_amount = key
+                if smallest_key_less_than_amount is not None and self.bid_sell_system.bid_dictionary_A[smallest_key_less_than_amount]:
+                    idx_of_the_one_selling = self.bid_sell_system.bid_dictionary_A[smallest_key_less_than_amount].popleft()
+                    person.bid_history_A.append(person.bid_amount_A)
+                    self.bid_sell_system.update_bid_sell_price()
+                    person.category_token_value['A']+=2
+                    self.persons[idx_of_the_one_selling].category_token_value['A']-=2
+                    person.net_worth-=person.bid_amount_A
+                    # not sure if I should use net_worth or income_for_the_round or other things instead
+                    self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_A
+                    full_combination_added+=person.check_full_combination()
             else:
                 if person.bid_amount_A in self.bid_sell_system.bid_dictionary_A:
                     person.bid_history_A.append(0)
@@ -163,7 +167,7 @@ class Environment:
             if person.bid_counter_A//10==0:
                 person.learn_bid_A()
             if person.can_sell_A():
-                if person.sell_amount_A<self.bid_sell_system.current_bid_price_A:
+                if person.sell_amount_A>=self.bid_sell_system.current_bid_price_A:
                     if person.sell_amount_A in self.bid_sell_system.sell_dictionary_A:
                         person.sell_history_A.append(0)
                         self.bid_sell_system.sell_dictionary_A[person.sell_amount_A].append(person.idx)
@@ -171,27 +175,38 @@ class Environment:
                         person.sell_history_A.append(0)
                         self.bid_sell_system.sell_dictionary_A[person.sell_amount_A]=deque([person.idx])
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_A>=self.bid_sell_system.current_bid_price_A:
-                    person.sell_history_A.append(person.sell_amount_A)
-                    idx_of_the_one_bidding=self.bid_sell_system.sell_dictionary_A[person.sell_amount_A].popleft()
-                    self.bid_sell_system.update_bid_sell_price()
-                    person.category_token_value['A']-=2
-                    self.persons[idx_of_the_one_bidding].category_token_value['A']+=2
-                    person.net_worth-=person.sell_amount_A
-                    # not sure if I should use net_worth or income_for_the_round or other things instead
-                    self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_A
+                elif person.sell_amount_A<self.bid_sell_system.current_bid_price_A:
+                    smallest_key_greater_than_sell_amount = None
+                    for key in self.bid_sell_system.sell_dictionary_A.keys():
+                        if key > person.sell_amount_A and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
+                            smallest_key_greater_than_sell_amount = key
+                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_A[smallest_key_greater_than_sell_amount]:
+                        person.sell_history_A.append(person.sell_amount_A)
+                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_A[smallest_key_greater_than_sell_amount].popleft()
+                        self.bid_sell_system.update_bid_sell_price()
+                        person.category_token_value['A']-=2
+                        self.persons[idx_of_the_person_bidding].category_token_value['A']+=2
+                        person.net_worth-=person.sell_amount_A
+                        # not sure if I should use net_worth or income_for_the_round or other things instead
+                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_A
             else:
                 person.sell_history_A.append(0)
 
-            if person.bid_amount_B>=self.bid_sell_system.current_sell_price_B and self.bid_sell_system.can_buy_B():
-                person.bid_history_B.append(person.bid_amount_B)
-                idx_of_the_one_selling=self.bid_sell_system.bid_dictionary_B[person.bid_amount_B].popleft()
-                self.bid_sell_system.update_bid_sell_price()
-                person.category_token_value['B']+=2
-                self.persons[idx_of_the_one_selling].category_token_value['B']-=2
-                person.net_worth-=person.bid_amount_B
-                self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_B
-                full_combination_added+=person.check_full_combination()
+            if person.bid_amount_B>=self.bid_sell_system.current_sell_price_B:
+                smallest_key_less_than_amount = None
+                for key in sorted(self.bid_sell_system.bid_dictionary_B):
+                    if key < person.bid_amount_B and (smallest_key_less_than_amount is None or key > smallest_key_less_than_amount):
+                        smallest_key_less_than_amount = key
+                if smallest_key_less_than_amount is not None and self.bid_sell_system.bid_dictionary_B[smallest_key_less_than_amount]:
+                    idx_of_the_one_selling = self.bid_sell_system.bid_dictionary_B[smallest_key_less_than_amount].popleft()
+                    person.bid_history_B.append(person.bid_amount_B)
+                    self.bid_sell_system.update_bid_sell_price()
+                    person.category_token_value['B']+=2
+                    self.persons[idx_of_the_one_selling].category_token_value['B']-=2
+                    person.net_worth-=person.bid_amount_B
+                    # not sure if I should use net_worth or income_for_the_round or other things instead
+                    self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_B
+                    full_combination_added+=person.check_full_combination()
             else:
                 if person.bid_amount_B in self.bid_sell_system.bid_dictionary_B:
                     person.bid_history_B.append(0)
@@ -204,7 +219,7 @@ class Environment:
             if person.bid_counter_B//10==0:
                 person.learn_bid_B()
             if person.can_sell_B():
-                if person.sell_amount_B<self.bid_sell_system.current_bid_price_B:
+                if person.sell_amount_B>=self.bid_sell_system.current_bid_price_B:
                     if person.sell_amount_B in self.bid_sell_system.sell_dictionary_B:
                         person.sell_history_B.append(0)
                         self.bid_sell_system.sell_dictionary_B[person.sell_amount_B].append(person.idx)
@@ -212,29 +227,39 @@ class Environment:
                         person.sell_history_B.append(0)
                         self.bid_sell_system.sell_dictionary_B[person.sell_amount_B]=deque([person.idx])
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_B>=self.bid_sell_system.current_bid_price_B:
-                    person.sell_history_B.append(person.sell_amount_B)
-                    idx_of_the_one_bidding=self.bid_sell_system.sell_dictionary_B[person.sell_amount_B].popleft()
-                    self.bid_sell_system.update_bid_sell_price()
-                    person.category_token_value['B']-=2
-                    self.persons[idx_of_the_one_bidding].category_token_value['B']+=2
-                    person.net_worth-=person.sell_amount_B
-                    # not sure if I should use net_worth or income_for_the_round or other things instead
-                    self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_B
+                elif person.sell_amount_B<self.bid_sell_system.current_bid_price_B:
+                    smallest_key_greater_than_sell_amount = None
+                    for key in self.bid_sell_system.sell_dictionary_B.keys():
+                        if key > person.sell_amount_B and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
+                            smallest_key_greater_than_sell_amount = key
+                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_B[smallest_key_greater_than_sell_amount]:
+                        person.sell_history_B.append(person.sell_amount_B)
+                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_B[smallest_key_greater_than_sell_amount].popleft()
+                        self.bid_sell_system.update_bid_sell_price()
+                        person.category_token_value['B']-=2
+                        self.persons[idx_of_the_person_bidding].category_token_value['B']+=2
+                        person.net_worth-=person.sell_amount_B
+                        # not sure if I should use net_worth or income_for_the_round or other things instead
+                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_B
             else:
                 person.sell_history_B.append(0)
 
 
-
-            if person.bid_amount_C>=self.bid_sell_system.current_sell_price_C and self.bid_sell_system.can_buy_C():
-                person.bid_history_C.append(person.bid_amount_C)
-                idx_of_the_one_selling=self.bid_sell_system.bid_dictionary_C[person.bid_amount_C].popleft()
-                self.bid_sell_system.update_bid_sell_price()
-                person.category_token_value['C']+=2
-                self.persons[idx_of_the_one_selling].category_token_value['C']-=2
-                person.net_worth-=person.bid_amount_C
-                self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_C
-                person.check_full_combination()
+            if person.bid_amount_C>=self.bid_sell_system.current_sell_price_C:
+                smallest_key_less_than_amount = None
+                for key in sorted(self.bid_sell_system.bid_dictionary_C):
+                    if key < person.bid_amount_C and (smallest_key_less_than_amount is None or key > smallest_key_less_than_amount):
+                        smallest_key_less_than_amount = key
+                if smallest_key_less_than_amount is not None and self.bid_sell_system.bid_dictionary_C[smallest_key_less_than_amount]:
+                    idx_of_the_one_selling = self.bid_sell_system.bid_dictionary_C[smallest_key_less_than_amount].popleft()
+                    person.bid_history_C.append(person.bid_amount_C)
+                    self.bid_sell_system.update_bid_sell_price()
+                    person.category_token_value['C']+=2
+                    self.persons[idx_of_the_one_selling].category_token_value['C']-=2
+                    person.net_worth-=person.bid_amount_C
+                    # not sure if I should use net_worth or income_for_the_round or other things instead
+                    self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_C
+                    full_combination_added+=person.check_full_combination()
             else:
                 if person.bid_amount_C in self.bid_sell_system.bid_dictionary_C:
                     person.bid_history_C.append(0)
@@ -248,7 +273,7 @@ class Environment:
             if person.bid_counter_C//10==0:
                 person.learn_bid_C()
             if person.can_sell_C():
-                if person.sell_amount_C<self.bid_sell_system.current_bid_price_C:
+                if person.sell_amount_C>=self.bid_sell_system.current_bid_price_C:
                     if person.sell_amount_C in self.bid_sell_system.sell_dictionary_C:
                         person.sell_history_C.append(0)
                         self.bid_sell_system.sell_dictionary_C[person.sell_amount_C].append(person.idx)
@@ -256,15 +281,21 @@ class Environment:
                         person.sell_history_C.append(0)
                         self.bid_sell_system.sell_dictionary_C[person.sell_amount_C]=deque([person.idx])
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_C>=self.bid_sell_system.current_bid_price_C:
-                    person.sell_history_C.append(person.sell_amount_C)
-                    idx_of_the_one_bidding=self.bid_sell_system.sell_dictionary_C[person.sell_amount_C].popleft()
-                    self.bid_sell_system.update_bid_sell_price()
-                    person.category_token_value['C']-=2
-                    self.persons[idx_of_the_one_bidding].category_token_value['C']+=2
-                    person.net_worth-=person.sell_amount_C
-                    # not sure if I should use net_worth or income_for_the_round or other things instead
-                    self.persons[idx_of_the_one_selling].net_worth+=person.sell_amount_C
+                elif person.sell_amount_C<self.bid_sell_system.current_bid_price_C:
+                    smallest_key_greater_than_sell_amount = None
+                    for key in self.bid_sell_system.sell_dictionary_C.keys():
+                        if key > person.sell_amount_C and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
+                            smallest_key_greater_than_sell_amount = key
+                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_C[smallest_key_greater_than_sell_amount]:
+                        person.sell_history_C.append(person.sell_amount_C)
+                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_C[smallest_key_greater_than_sell_amount].popleft()
+                        self.bid_sell_system.update_bid_sell_price()
+                        person.category_token_value['C']-=2
+                        self.persons[idx_of_the_person_bidding].category_token_value['C']+=2
+                        person.net_worth-=person.sell_amount_C
+                        # not sure if I should use net_worth or income_for_the_round or other things instead
+                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_C
+
             else:
                 person.sell_history_C.append(0)
                 
@@ -277,6 +308,6 @@ class Environment:
     
     def persons_gain_category_token(self):
         for person in self.persons:
-            person.earn_category_token
+            person.earn_category_token()
         next_state= self.get_state()
         return next_state

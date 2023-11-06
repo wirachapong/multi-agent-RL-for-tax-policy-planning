@@ -18,7 +18,7 @@ class Environment_0nn(Environment):
         self.horizon = horizon
         self.time_step = 0
         
-        self.persons = [Person_0nn(idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary) for idx in range(n_persons)] 
+        self.persons = [Person_0nn(idx, random.choice(education_level_turn0), net_worth_turn0, base_salary, category=random.choice(available_category_of_person)) for idx in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
         

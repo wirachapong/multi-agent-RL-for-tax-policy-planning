@@ -61,7 +61,7 @@ class Person:
         self.reward_from_token = deque(maxlen=100)
     
     def earn_category_token(self):
-        self.category_token_value[self.category] += int(self.educational_level)
+        self.category_token_value[self.category] += int(self.education_level)
 
     def earn(self, tax_function):
         self.income_for_the_round, self.tax_for_the_round = tax_function(self.potential_income)
