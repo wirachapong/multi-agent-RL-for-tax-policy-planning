@@ -1,7 +1,7 @@
+import configuration
 from environment import Environment
 from person_0nn import Person_0nn
 from policyplanneragent import PolicyPlannerAgent
-from constants import ACTIONS
 import random
 from double_auction import *
 from bid_sell import *
@@ -20,7 +20,7 @@ class Environment_0nn(Environment):
         
         self.persons = [Person_0nn(idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary) for idx in range(n_persons)] 
 
-        self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
+        self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         
 
         self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)

@@ -1,0 +1,53 @@
+{
+  "EDUCATION_LEVELS": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "EDUCATION_EARNINGS": {
+    "0": 10000,
+    "1": 13000,
+    "2": 15000,
+    "3": 17000,
+    "4": 20000
+  },
+
+
+  "EXPENSE": 10000,
+  "NUM_PERSONS": 100,
+  "NUM_EPISODES": 10000,
+
+  "ALPHA_POLICY": 0.1,
+  "GAMMA_POLICY": 0.9,
+  "EPSILON_POLICY": 0.1,
+  "BATCH_SIZE_POLICY": 64,
+  "MEMORY_SIZE_POLICY": 10000,
+  "BRACKET_GAP": 1000,
+  "W_EQUALITY": 0.5,
+
+
+  "ALPHA_PERSON": 0.1,
+  "GAMMA_PERSON": 0.9,
+  "EPSILON_PERSON": 0.1,
+  "BATCH_SIZE_PERSON": 64,
+  "MEMORY_SIZE_PERSON": 10000,
+  "BASE_SALARY": 10,
+
+
+  "EDUCATION_INCREASE": 0.1,
+
+  "ACTIONS": [
+    0,
+    1,
+    2
+  ],
+  "SALARIES": [
+    10000,
+    13000,
+    16000,
+    19000,
+    22000
+  ]
+}
