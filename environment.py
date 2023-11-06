@@ -22,9 +22,8 @@ class Environment:
         # Starts with same education level
         education_level_turn0 = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
         net_worth_turn0 = 0.0
-        base_salary = 400.0
         n_brackets = 7
-        self.persons = [Person(i,  education_level_turn0, net_worth_turn0, base_salary) for i in range(n_persons)] 
+        self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
