@@ -28,6 +28,12 @@ class Person:
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
+
+        # Informational 
+        self.state = [self.net_worth, self.potential_income]
+        self.action_space = [0, 1] # ["earn", "learn"]
+
+
         self.category = category
         self.category_token_value = {'A':0,'B':0,'C':0}
         self.bid_amount_A=np.random.choice([1,2,3,4,5])
@@ -53,18 +59,13 @@ class Person:
         self.sell_counter_C = 0
 
         self.reward_from_token = deque(maxlen=100)
-
-        self.state = [self.net_worth, self.potential_income]
-        self.action_space = [0, 1] # ["earn", "learn"]
     
     def earn_category_token(self):
-        self.category_token_value[self.cateogory] += int(self.educational_level)
+        self.category_token_value[self.category] += int(self.educational_level)
 
     def earn(self, tax_function):
-        self.income_for_the_round = self.potential_income
-    
-        self.income_for_the_round, self.tax_for_the_round = tax_function(self.income_for_the_round)
-        # self.net_worth += self.income_for_the_round
+        self.income_for_the_round, self.tax_for_the_round = tax_function(self.potential_income)
+        self.net_worth += self.income_for_the_round
         
     def learn(self, tax_function):
         self.income_for_the_round, self.tax_for_the_round = 0, 0
