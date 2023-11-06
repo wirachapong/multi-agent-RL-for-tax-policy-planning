@@ -5,14 +5,6 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import deque
 from NNOfPerson import NNOfPerson
-import random
-
-# def id_generator_function():
-#     """Generate integers 0, 1, 2, and so on."""
-#     task_id = 0
-#     while True:
-#         yield task_id
-#         task_id += 1
 
 class Person:
     # id_generator = id_generator_function()
@@ -65,8 +57,6 @@ class Person:
         self.state = [self.net_worth, self.potential_income]
         self.action_space = [0, 1] # ["earn", "learn"]
     
-    # def update_net_worth(self):
-    #     self.net_worth += self.earn()
     def earn_category_token(self):
         self.category_token_value[self.cateogory] += int(self.educational_level)
 
@@ -76,13 +66,16 @@ class Person:
         self.income_for_the_round, self.tax_for_the_round = tax_function(self.income_for_the_round)
         # self.net_worth += self.income_for_the_round
         
-    def learn(self):
+    def learn(self, tax_function):
         self.income_for_the_round, self.tax_for_the_round = 0, 0
         self.education_level += EDUCATION_INCREASE
-        self.potential_income = self.base_salary * self.education_level
+        self.potential_income, _  = tax_function(self.base_salary * self.education_level)
 
     # Can include number of hours worked at later stages
-    def get_reward(self):
+    def get_reward(self, is_terminal_state=False):
+        if is_terminal_state:
+            return self.income_for_the_round + self.net_worth
+        
         return self.income_for_the_round
     
     def get_state(self):
@@ -94,7 +87,7 @@ class Person:
         return self._idx
 
     def select_action(self):
-        if np.random.random() < self.epsilon:
+        if np.random.random() < self.epsilon or len(self.memory) < MEMORY_SIZE:
             return np.random.choice(self.action_space)
         
         else:
@@ -110,7 +103,7 @@ class Person:
             self.earn(tax_function)
 
         else:
-            self.learn()
+            self.learn(tax_function)
 
     # def step(self):
     #     action = self.select_action()

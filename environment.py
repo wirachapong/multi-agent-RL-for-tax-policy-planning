@@ -63,7 +63,7 @@ class Environment:
             person.income_for_the_round += accumulated_tax/len(self.persons)
 
     #! Either this in main.py or in Environment.py
-    def persons_step(self):
+    def persons_step(self, is_terminal_state=False):
         # This method updates the net worth of all persons and gets the new state.
         # The 'action' parameter is included because it might affect how the environment changes.
         # Here should be the space that each individual start doing actions
@@ -94,7 +94,7 @@ class Environment:
         accumulated_tax = self.get_tax_for_round_for_all()
         self.distribute_tax(accumulated_tax)
         
-        person_rewards = [person.get_reward() for person in self.persons]
+        person_rewards = [person.get_reward(is_terminal_state) for person in self.persons]
         person_next_states = [person.get_state() for person in self.persons]
 
         for i, person in enumerate(self.persons):
@@ -102,13 +102,14 @@ class Environment:
         
         for person in self.persons:
             person.replay()
+
         # 'action' is not used in the current method, but it's here for future use
         # if you want the environment to react based on the actions taken.
         
         next_state = self.get_state()
         return next_state
     
-    def fill_random_action_history(self):
+    def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         for person in self.persons:
             self.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
             self.bid_history_B=self.create_random_deque(100,0,4,5,60,20)
