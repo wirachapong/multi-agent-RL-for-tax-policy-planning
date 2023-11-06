@@ -80,13 +80,6 @@ class PolicyPlannerAgent:
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
         self.current_tax_rate = new_tax_rate
         
-        
-        # accumulated_tax = self.apply_tax(persons, self.current_tax_rate)
-
-        # for person in persons:
-        #     person.net_worth+=accumulated_tax/len(persons)
-        
-        # this is the old back bone so we will probably change it later
         return total_cost
     
     def tax_rate_for_income(self, income, bracket_gap:int=1000):
@@ -106,16 +99,16 @@ class PolicyPlannerAgent:
         return person_income, tax_income
     
     def get_gini(self, persons):
-        x = [person.net_worth for person in persons]
+        x = np.array([person.net_worth for person in persons])
         total = 0
         for i, xi in enumerate(x[:-1], 1):
             total += np.sum(np.abs(xi - x[i:]))
         return total / (len(x)**2 * np.mean(x))
         
     #need to change this one
-    def get_reward(self, total_cost, persons):  
+    def get_reward(self, total_cost, persons, w_equality):  
         gini = self.get_gini(persons)
-        
+
         net_worth_sum = sum([person.net_worth for person in persons])
         reward = net_worth_sum - total_cost
         return reward
