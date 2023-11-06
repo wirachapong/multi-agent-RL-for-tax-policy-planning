@@ -70,7 +70,8 @@ class BidSellSystem:
                 del self.sell_dictionary_C[sell_key]
 
     def end_round(self):
-        
+        pass
+
     def update_bid_sell_price(self):
         # For A
         if self.bid_dictionary_A:
