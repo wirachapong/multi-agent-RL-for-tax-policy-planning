@@ -34,12 +34,17 @@ class Environment:
         self.bid_sell_system = BidSellSystem(commodities=commodities,agents=self.persons)
         self.EPSILON = configuration.config.get_constant("EPSILON")
 
-        self.current_round_bid_dictA = self.bid_sell_system.current_round_bid_dict_A()
-        self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
-        self.current_round_bid_dictB = self.bid_sell_system.current_round_bid_dict_B()
-        self.current_round_sell_dictB = self.bid_sell_system.current_round_sell_dict_B()
-        self.current_round_bid_dictC = self.bid_sell_system.current_round_bid_dict_C()
-        self.current_round_sell_dictC = self.bid_sell_system.current_round_sell_dict_C()
+        self.history_of_transaction_A = []
+        self.history_of_transaction_B = []
+        self.history_of_transaction_C = []
+
+        
+        # self.current_round_bid_dictA = self.bid_sell_system.current_round_bid_dict_A()
+        # self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
+        # self.current_round_bid_dictB = self.bid_sell_system.current_round_bid_dict_B()
+        # self.current_round_sell_dictB = self.bid_sell_system.current_round_sell_dict_B()
+        # self.current_round_bid_dictC = self.bid_sell_system.current_round_bid_dict_C()
+        # self.current_round_sell_dictC = self.bid_sell_system.current_round_sell_dict_C()
 
     # class PolicyPlannerAgent:
     #     def __init__(self, input_dim, num_actions):
@@ -49,7 +54,42 @@ class Environment:
     #         self.history_of_auctions = []
     #         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
-
+    def get_history_of_auctions(self):
+        history_of_A=[]
+        history_of_B=[]
+        history_of_C=[]
+        current_number=0
+        for i in range(100):
+            for person in self.persons:
+                current_number+=person.bid_history_A[i]
+            history_of_A.append(current_number)
+        current_number=0
+        for i in range(100):
+            for person in self.persons:
+                current_number+=person.bid_history_A[i]
+            history_of_B.append(current_number)
+        current_number=0
+        for i in range(100):
+            for person in self.persons:
+                current_number+=person.bid_history_A[i]
+            history_of_C.append(current_number)
+        self.history_of_transaction_A=history_of_A
+        self.history_of_transaction_B=history_of_B
+        self.history_of_transaction_C=history_of_C
+    
+    def update_history_of_auctions(self):
+        current_number=0
+        for person in self.persons:
+            current_number+=person.bid_history_A[-1]
+        self.history_of_transaction_A.append(current_number)
+        current_number=0
+        for person in self.persons:
+            current_number+=person.bid_history_B[-1]
+        self.history_of_transaction_B.append(current_number)
+        current_number=0
+        for person in self.persons:
+            current_number+=person.bid_history_C[-1]
+        self.history_of_transaction_C.append(current_number)
     def get_state(self):
         # This method compiles the net worths and education levels of all persons
         # into a single list representing the current state.

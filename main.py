@@ -91,7 +91,9 @@ def main():
 
 #     next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
 
+    current_state = env.get_state()
 
+<<<<<<< Updated upstream
 #     next_state3= env.bid_sell_system.clear_previous_round()
 
 #     action = env.PolicyPlannerAgent.select_action(next_state3)
@@ -107,6 +109,18 @@ def main():
 #     env.bid_sell_system.end_round()
 #     total_reward_individual = sum([person.get_reward() for person in env.persons])
 #     return [reward_policy_planner, total_reward_individual]
+=======
+    action = env.PolicyPlannerAgent.select_action(current_state)
+    total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
+    reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+    # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
+    env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
+    env.PolicyPlannerAgent.replay()  # Experience replay
+    env.remove_redundant_current_dict()
+    total_reward_individual = sum([person.get_reward() for person in env.persons])
+    return [reward_policy_planner, total_reward_individual]
+>>>>>>> Stashed changes
 
 if __name__ == "__main__":
     main()
