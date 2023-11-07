@@ -1,5 +1,5 @@
+import configuration
 from person import Person
-from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE, MEMORY_SIZE, EDUCATION_INCREASE
 
 
 
@@ -29,7 +29,7 @@ class Person_0nn(Person):
 
         time_steps_left = horizon - 1 - time_step
         income_if_earn = self.potential_income * time_steps_left
-        income_if_learn = (self.base_salary * (self.education_level + EDUCATION_INCREASE)) * (time_steps_left - 1)
+        income_if_learn = (self.base_salary * (self.education_level + configuration.config.get_constant("EDUCATION_INCREASE"))) * (time_steps_left - 1)
 
         if income_if_earn > income_if_learn:
             return 0

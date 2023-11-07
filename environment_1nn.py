@@ -17,7 +17,7 @@ class Environment_1nn(Environment):
         n_brackets = 7
         self.person_model = NNOfPerson(2, 2) # QNetwork[net_worth, potential_income] -> [earn, learn]
 
-        self.persons = [Person_1nn(self.person_model, idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary) for idx in range(n_persons)] 
+        self.persons = [Person_1nn(self.person_model, idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary, category=random.choice(available_category_of_person)) for idx in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
 

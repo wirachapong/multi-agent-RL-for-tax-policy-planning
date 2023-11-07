@@ -1,4 +1,4 @@
-from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE, MEMORY_SIZE, EDUCATION_INCREASE, BASE_SALARY
+import configuration
 import numpy as np
 import torch
 import torch.nn as nn
@@ -18,13 +18,13 @@ class Person:
 
         self._idx = idx
         self.memory = deque()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_PERSON"))
         self.epsilon = epsilon
 
         # Value trackings
         self.net_worth = net_worth
         self.education_level = education_level
-        self.base_salary = BASE_SALARY
+        self.base_salary = configuration.config.get_constant("BASE_SALARY")
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
@@ -61,7 +61,7 @@ class Person:
         self.reward_from_token = deque(maxlen=100)
     
     def earn_category_token(self):
-        self.category_token_value[self.category] += int(self.educational_level)
+        self.category_token_value[self.category] += int(self.education_level)
 
     def earn(self, tax_function):
         self.income_for_the_round, self.tax_for_the_round = tax_function(self.potential_income)
@@ -69,7 +69,7 @@ class Person:
         
     def learn(self, tax_function):
         self.income_for_the_round, self.tax_for_the_round = 0, 0
-        self.education_level += EDUCATION_INCREASE
+        self.education_level += configuration.config.get_constant("EDUCATION_INCREASE")
         self.potential_income, _  = tax_function(self.base_salary * self.education_level)
 
     # Can include number of hours worked at later stages
@@ -88,7 +88,7 @@ class Person:
         return self._idx
 
     def select_action(self):
-        if np.random.random() < self.epsilon or len(self.memory) < MEMORY_SIZE:
+        if np.random.random() < self.epsilon or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_PERSON"):
             return np.random.choice(self.action_space)
         
         else:
@@ -112,14 +112,14 @@ class Person:
 
     def remember(self, state, action:int, reward, next_state):
         self.memory.append((state, action, reward, next_state))
-        if len(self.memory) > MEMORY_SIZE:
+        if len(self.memory) > configuration.config.get_constant("MEMORY_SIZE"):
             self.memory.popleft()
 
     def replay(self):
-        if len(self.memory) < BATCH_SIZE:
+        if len(self.memory) < configuration.config.get_constant("BATCH_SIZE_PERSON"):
             return
 
-        batch_indices = np.random.choice(len(self.memory), BATCH_SIZE, replace=False)
+        batch_indices = np.random.choice(len(self.memory), configuration.config.get_constant("BATCH_SIZE_PERSON"), replace=False)
         batch = [self.memory[i] for i in batch_indices]
 
         for state, action, reward, next_state in batch:
@@ -128,7 +128,7 @@ class Person:
 
             with torch.no_grad():
                 max_value, max_index = torch.max(self.model(next_state_tensor), dim=1)
-                target = reward + GAMMA * max_value
+                target = reward + configuration.config.get_constant("GAMMA_PERSON") * max_value
 
             q_values = self.model(state_tensor)
             loss = nn.MSELoss()(q_values[0][action], target)
