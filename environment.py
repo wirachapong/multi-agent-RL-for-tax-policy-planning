@@ -113,8 +113,6 @@ class Environment:
 
     def simulate_episode(self, is_terminal_state=False, verbose = False):
 
-        current_state = self.get_state()
-
         next_state0= self.persons_gain_category_token()
 
         next_state1= self.fill_random_action_history()
@@ -123,7 +121,9 @@ class Environment:
 
         next_state3= self.bid_sell_system.clear_previous_round()
 
-        action = self.PolicyPlannerAgent.select_action(next_state3)
+        current_state = self.get_state()
+
+        action = self.PolicyPlannerAgent.select_action(current_state)
         
         if verbose:
             print(["%.2f" % tax_rate for tax_rate in self.PolicyPlannerAgent.current_tax_rate])
@@ -137,6 +137,10 @@ class Environment:
         self.PolicyPlannerAgent.replay()  # Experience replay
         self.bid_sell_system.end_round()
         total_reward_individual = sum([person.get_reward() for person in self.persons])
+
+        if self.PolicyPlannerAgent.EPSILON > 0.01:
+                self.PolicyPlannerAgent.EPSILON *= 0.995
+
         return [reward_policy_planner, total_reward_individual]
 
     def simulate_lifecycle(self, NUM_EPISODES):
@@ -149,7 +153,7 @@ class Environment:
             if episode == NUM_EPISODES - 1:
                 is_terminal_state = True
             
-            if episode % 10:
+            if episode % 10 == 0:
                 print('Episode', episode)
                 verbose = True
 
@@ -158,8 +162,7 @@ class Environment:
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
-            if EPSILON > 0.01:
-                EPSILON *= 0.995
+            
 
         print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
 

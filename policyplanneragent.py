@@ -30,9 +30,10 @@ class PolicyPlannerAgent:
         self.memory = deque()  # For experience replay
         self.history_of_auctions = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_POLICY"))
+        self.EPSILON = configuration.config.get_constant("EPSILON_POLICY")
 
     def select_action(self, state):
-        if (np.random.uniform(0, 1) < configuration.config.get_constant("EPSILON_POLICY")
+        if (np.random.uniform(0, 1) < self.EPSILON
                 or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_POLICY")):
             return torch.tensor([np.random.choice(configuration.config.get_constant("ACTIONS")) for _ in range(len(self.current_tax_rate))])
 
