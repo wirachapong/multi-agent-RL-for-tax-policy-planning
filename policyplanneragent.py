@@ -94,7 +94,8 @@ class PolicyPlannerAgent:
 
         tax_income = tax_over_last_index
         for i in range(income_bracket_index):
-            tax_income += (brackets[i]/100) * BRACKET_GAP
+            tax_rate = max(min(brackets[i]/100,1),0)
+            tax_income += tax_rate * BRACKET_GAP
 
         person_income = income - tax_income 
 
