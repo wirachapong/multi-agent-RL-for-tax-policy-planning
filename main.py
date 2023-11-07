@@ -28,17 +28,17 @@ def main():
     configuration.config = Configuration(args.config_file)
 
 
-
+    
     env = Environment(configuration.config.get_constant("NUM_PERSONS"))
     # EPSILON = 0.1  # Consider moving constants to a separate config file or module
     total_reward_policy_planner = 0
     total_reward_individual = 0
-    NUM_EPISODES = 1000  # You might need more episodes for training
+    NUM_EPISODES = 2  # You might need more episodes for training
     EPSILON = configuration.config.get_constant("EPSILON_POLICY")
-    NUM_EPISODES = configuration.config.get_constant("NUM_EPISODES")
+    #NUM_EPISODES = configuration.config.get_constant("NUM_EPISODES")
 
-
-    env = Environment_0nn(configuration.config.get_constant("NUM_PERSONS"), NUM_EPISODES)    # With best response agents
+    env = Environment_0nn(configuration.config.get_constant("NUM_PERSONS"), 2)  
+    # env = Environment_0nn(configuration.config.get_constant("NUM_PERSONS"), NUM_EPISODES)    # With best response agents
     # env = Environment_1nn(NUM_PERSONS)                # With 1 neural network for persons
     # env = Environment(NUM_PERSONS)                    # With neural network for each person
 
@@ -63,7 +63,6 @@ def main():
 #  but it will be done as the very first step of each episode so that the result of those auctions will also be included in the reward of each episode.
 
 def simulate_episode(env, is_terminal_state=False):
-
     current_state = env.get_state()
     #! Either this in main.py or in Environment.py
     # #  Here should be the space that each individual start doing actions
@@ -81,24 +80,16 @@ def simulate_episode(env, is_terminal_state=False):
     #     #! Maybe not do this to batch training later instead
     #     person.replay()
     next_state0= env.persons_gain_category_token()
-
     next_state1= env.fill_random_action_history()
-    
-
     next_state2= env.persons_do_bid_sell() # learn of buying and selling is already included in here
-
-
-    next_state3= env.bid_sell_system.clear_previous_round()
-
-    action = env.PolicyPlannerAgent.select_action(next_state3)
+    action = env.PolicyPlannerAgent.select_action(next_state2)
     total_cost = env.PolicyPlannerAgent.apply_action(action, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
     next_state2 = env.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
     reward_policy_planner = env.PolicyPlannerAgent.get_reward(0, env.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
-    
     # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
     env.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
     env.PolicyPlannerAgent.replay()  # Experience replay
-    env.bid_sell_system.end_round()
+    env.remove_redundant_current_dict()
     total_reward_individual = sum([person.get_reward() for person in env.persons])
     return [reward_policy_planner, total_reward_individual]
 

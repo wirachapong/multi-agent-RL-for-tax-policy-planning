@@ -8,6 +8,7 @@ from bid_sell import *
 
 class Environment_0nn(Environment):
     def __init__(self, n_persons:int, horizon: int):
+        super().__init__(n_persons)
         available_category_of_person = ["A","B","C"]
         education_level_turn0 = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
         net_worth_turn0 = 0.0
@@ -22,9 +23,6 @@ class Environment_0nn(Environment):
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         
-
-        self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
-
     def persons_step(self, is_terminal_state=False):
         # Approach with individual comprehensions
         # current_states = [person.get_state() for person in self.persons]

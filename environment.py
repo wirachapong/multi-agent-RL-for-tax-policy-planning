@@ -30,6 +30,13 @@ class Environment:
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
         self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
 
+        self.current_round_bid_dictA = self.bid_sell_system.current_round_bid_dict_A()
+        self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
+        self.current_round_bid_dictB = self.bid_sell_system.current_round_bid_dict_B()
+        self.current_round_sell_dictB = self.bid_sell_system.current_round_sell_dict_B()
+        self.current_round_bid_dictC = self.bid_sell_system.current_round_bid_dict_C()
+        self.current_round_sell_dictC = self.bid_sell_system.current_round_sell_dict_C()
+
     # class PolicyPlannerAgent:
     #     def __init__(self, input_dim, num_actions):
     #         self.model = QNetwork(input_dim, num_actions)
@@ -37,6 +44,7 @@ class Environment:
     #         self.memory = []  # For experience replay
     #         self.history_of_auctions = []
     #         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
+
 
     def get_state(self):
         # This method compiles the net worths and education levels of all persons
@@ -167,6 +175,19 @@ class Environment:
 
             if person.bid_counter_A//10==0:
                 person.learn_bid_A()
+            # print(self.current_round_sell_dictA)
+            # print(self.bid_sell_system.sell_dictionary_A)
+            # for key, small_values in self.current_round_sell_dictA.items():
+            #     if key in self.bid_sell_system.sell_dictionary_A:
+            #         to_remove = list(small_values)
+            #         for item in to_remove:
+            #             try:
+            #                 self.bid_sell_system.sell_dictionary_A[key].remove(item)
+            #             except ValueError:
+            #                 pass
+            # self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
+            # print(self.current_round_sell_dictA)
+            # print(self.bid_sell_system.sell_dictionary_A)
             if person.can_sell_A():
                 if person.sell_amount_A>=self.bid_sell_system.current_bid_price_A:
                     if person.sell_amount_A in self.bid_sell_system.sell_dictionary_A:
@@ -192,6 +213,25 @@ class Environment:
                         self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_A
             else:
                 person.sell_history_A.append(0)
+
+            # print("watching bit update")
+
+            # print(self.current_round_bid_dictA)
+            # print(self.bid_sell_system.bid_dictionary_A)
+
+            # # it's name is current round but it hasn't been updated yet so it's actually previous round here
+            # for key, small_values in self.current_round_bid_dictA.items():
+            #     if key in self.bid_sell_system.bid_dictionary_A:
+            #         to_remove = list(small_values)
+            #         for item in to_remove:
+            #             try:
+            #                 self.bid_sell_system.bid_dictionary_A[key].remove(item)
+            #             except ValueError:
+            #                 pass
+            # self.current_round_bid_dictA = self.bid_sell_system.bid_dictionary_A
+
+            # print(self.current_round_bid_dictA)
+            # print(self.bid_sell_system.bid_dictionary_A)
 
             if person.bid_amount_B>=self.bid_sell_system.current_sell_price_B:
                 smallest_key_less_than_amount = None
@@ -312,3 +352,29 @@ class Environment:
             person.earn_category_token()
         next_state= self.get_state()
         return next_state
+    
+    def remove_redundant_current_dict(self):
+        for key,value in self.bid_sell_system.bid_dictionary_A.items():
+            leng=int(len(self.bid_sell_system.bid_dictionary_A[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.bid_dictionary_A[key].popleft()
+        for key,value in self.bid_sell_system.bid_dictionary_B.items():
+            leng=int(len(self.bid_sell_system.bid_dictionary_B[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.bid_dictionary_B[key].popleft()
+        for key,value in self.bid_sell_system.bid_dictionary_C.items():
+            leng=int(len(self.bid_sell_system.bid_dictionary_C[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.bid_dictionary_C[key].popleft()
+        for key,value in self.bid_sell_system.sell_dictionary_A.items():
+            leng=int(len(self.bid_sell_system.sell_dictionary_A[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.sell_dictionary_A[key].popleft()
+        for key,value in self.bid_sell_system.sell_dictionary_B.items():
+            leng=int(len(self.bid_sell_system.sell_dictionary_B[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.sell_dictionary_B[key].popleft()
+        for key,value in self.bid_sell_system.sell_dictionary_C.items():
+            leng=int(len(self.bid_sell_system.sell_dictionary_C[key])/2)
+            for i in range(leng):
+                self.bid_sell_system.sell_dictionary_C[key].popleft()
