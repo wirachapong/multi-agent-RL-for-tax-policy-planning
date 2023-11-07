@@ -24,6 +24,7 @@ class Environment:
         self.history_of_transaction_A = []
         self.history_of_transaction_B = []
         self.history_of_transaction_C = []
+
     def get_history_of_auctions(self):
         history_of_A=[]
         history_of_B=[]
@@ -50,18 +51,19 @@ class Environment:
         
     
     def update_history_of_auctions(self):
-        current_number=0
-        for person in self.persons:
-            current_number+=person.bid_history_A[-1]
-        self.history_of_transaction_A.append(current_number)
-        current_number=0
-        for person in self.persons:
-            current_number+=person.bid_history_B[-1]
-        self.history_of_transaction_B.append(current_number)
-        current_number=0
-        for person in self.persons:
-            current_number+=person.bid_history_C[-1]
-        self.history_of_transaction_C.append(current_number)
+        # current_number=0
+        # for person in self.persons:
+        #     current_number+=person.bid_history_A[-1]
+        # self.history_of_transaction_A.append(current_number)
+        # current_number=0
+        # for person in self.persons:
+        #     current_number+=person.bid_history_B[-1]
+        # self.history_of_transaction_B.append(current_number)
+        # current_number=0
+        # for person in self.persons:
+        #     current_number+=person.bid_history_C[-1]
+        # self.history_of_transaction_C.append(current_number)
+        pass
 
     def summarize_graph(self):
         # Calculate the cumulative sums
@@ -165,8 +167,6 @@ class Environment:
         
         next_state2= self.persons_do_bid_sell() # learn of buying and selling is already included in here
 
-        next_state3= self.bid_sell_system.clear_previous_round()
-
         current_state = self.get_state()
 
         action = self.PolicyPlannerAgent.select_action(current_state)
@@ -183,6 +183,10 @@ class Environment:
         self.PolicyPlannerAgent.replay()  # Experience replay
         self.bid_sell_system.end_round()
         total_reward_individual = sum([person.get_reward() for person in self.persons])
+        print("starting again")
+        for person in self.persons:
+            print(person.bid_history_A)
+            break
         self.update_history_of_auctions()
         if self.PolicyPlannerAgent.EPSILON > 0.01:
                 self.PolicyPlannerAgent.EPSILON *= 0.995
@@ -225,13 +229,13 @@ class Environment:
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         for person in self.persons:
             person.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
-            person.bid_history_B=self.create_random_deque(100,0,4,5,60,20)
-            person.bid_history_C=self.create_random_deque(100,0,4,5,60,20)
+            person.bid_history_B=self.create_random_deque(100,0,3,2,70,10)
+            person.bid_history_C=self.create_random_deque(100,0,1,7,50,30)
             person.sell_history_A=self.create_random_deque(100,0,4,5,60,20)
-            person.sell_history_B=self.create_random_deque(100,0,4,5,60,20)
-            person.sell_history_C=self.create_random_deque(100,0,4,5,60,20)
+            person.sell_history_B=self.create_random_deque(100,0,3,4,50,30)
+            person.sell_history_C=self.create_random_deque(100,0,1,6,70,10)
             person.reward_from_token=self.create_random_deque(100,0,0,100,60,35)
-        # self.get_history_of_auctions()
+        self.get_history_of_auctions()
         next_state = self.get_state()
         # self.bid_sell_system.bid_dictionary_A
         # self.bid_sell_system.bid_dictionary_B

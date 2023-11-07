@@ -39,8 +39,7 @@ def main():
 
     for lifecycle in range(NUM_LIFECYCLES):
         print(f"LIFECYCLE: {lifecycle}")
-        env.simulate_lifecycle(NUM_EPISODES)
-    env.summarize_graph()   
+        env.simulate_lifecycle(NUM_EPISODES) 
 
     env.save_policy_planner(NUM_LIFECYCLES)
 
