@@ -9,7 +9,7 @@ from NNOfPerson import NNOfPerson
 class Person:
     # id_generator = id_generator_function()
 
-    def __init__(self, idx:int, education_level:float, net_worth:float, epsilon:float = 0.1, category:str='A'):
+    def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float = 0.1, category:str='A'):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
         
         # QNetwork definition
@@ -21,9 +21,15 @@ class Person:
         self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_PERSON"))
         self.epsilon = epsilon
 
-        # Value trackings
-        self.net_worth = net_worth
+        self.turns_left_in_current_education = 0
         self.education_level = education_level
+        self.education_levels = configuration.config.get_constant("EDUCATION_LEVELS")
+        self.education_earnings = configuration.config.get_constant("EDUCATION_EARNINGS")
+        self.education_turns_required = configuration.config.get_constant("EDUCATION_TURNS_REQUIRED")
+
+        # Value trackings
+        self.cost_of_living = configuration.config.get_constant("COST_OF_LIVING")
+        self.net_worth = net_worth
         self.base_salary = configuration.config.get_constant("BASE_SALARY")
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
@@ -64,13 +70,24 @@ class Person:
         self.category_token_value[self.category] += int(self.education_level)
 
     def earn(self, tax_function):
-        self.income_for_the_round, self.tax_for_the_round = tax_function(self.potential_income)
+        self.potential_income, self.tax_for_the_round = tax_function(self.education_earnings[self.education_level])
+        self.income_for_the_round = self.potential_income
         self.net_worth += self.income_for_the_round
+        self.net_worth -= self.cost_of_living
         
-    def learn(self, tax_function):
+    def learn(self, tax_function=None):
+
+        if self.turns_left_in_current_education:
+            self.turns_left_in_current_education -= 1
+            if not self.turns_left_in_current_education:
+                self.education_level += 1
+            
         self.income_for_the_round, self.tax_for_the_round = 0, 0
-        self.education_level += configuration.config.get_constant("EDUCATION_INCREASE")
-        self.potential_income, _  = tax_function(self.base_salary * self.education_level)
+        self.potential_income, _ = tax_function(self.education_earnings[self.education_level])
+        self.net_worth -= self.cost_of_living
+
+        # self.education_level += configuration.config.get_constant("EDUCATION_INCREASE")
+        # self.potential_income, _  = tax_function(self.base_salary * self.education_level)
 
     # Can include number of hours worked at later stages
     def get_reward(self, is_terminal_state=False):

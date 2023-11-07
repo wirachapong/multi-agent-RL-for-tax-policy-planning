@@ -8,6 +8,7 @@ from bid_sell import *
 from collections import deque
 import random
 from configuration import config
+import torch
 
 class Environment:
     def __init__(self, n_persons:int):
@@ -21,14 +22,17 @@ class Environment:
         # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
 
         # Starts with same education level
-        education_level_turn0 = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
-        net_worth_turn0 = 0.0
-        n_brackets = 7
+        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
+        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
+        n_brackets = configuration.config.get_constant("N_BRACKETS")
+        commodities = configuration.config.get_constant("AVAILABLE_COMMODITIES")
+
         self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
-        self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
+        self.bid_sell_system = BidSellSystem(commodities=commodities,agents=self.persons)
+        self.EPSILON = configuration.config.get_constant("EPSILON")
 
     # class PolicyPlannerAgent:
     #     def __init__(self, input_dim, num_actions):
@@ -64,26 +68,6 @@ class Environment:
 
     #! Either this in main.py or in Environment.py
     def persons_step(self, is_terminal_state=False):
-        # This method updates the net worth of all persons and gets the new state.
-        # The 'action' parameter is included because it might affect how the environment changes.
-        # Here should be the space that each individual start doing actions
-
-        # # Approach with one for loop
-        # for person in self.persons:
-        #     current_state = person.get_state()
-        #     person_action = person.select_action()
-
-        #     person.take_action(person_action, self.PolicyPlannerAgent.tax_rate_for_income)
-            
-        #     person_reward = person.get_reward()
-        #     person_next_state = person.get_state()
-
-        #     person.remember(current_state, person_action, person_reward, person_next_state)
-            
-        #     #! Maybe not do this to batch training later instead
-        #     person.replay()
-
-
         # Approach with individual comprehensions
         current_states = [person.get_state() for person in self.persons]
         person_actions = [person.select_action() for person in self.persons]
@@ -109,11 +93,69 @@ class Environment:
         next_state = self.get_state()
         return next_state
     
-    def simulate_episode(self):
-        pass
+    def save_policy_planner(self, lifecycle):
+        path = f"saved_models/lifecycle_{lifecycle}_"
+    
+        tax_rate = np.array(self.PolicyPlannerAgent.current_tax_rate)
+        tax_rate = np.save(tax_rate, path + "tax_rate")
 
-    def simulate_lifecycle(self):
-        pass
+        model = self.PolicyPlannerAgent.model
+        torch.save(model.state_dict(), path + "model")
+        
+
+    def simulate_episode(self, is_terminal_state=False, verbose = False):
+
+        current_state = self.get_state()
+
+        next_state0= self.persons_gain_category_token()
+
+        next_state1= self.fill_random_action_history()
+        
+        next_state2= self.persons_do_bid_sell() # learn of buying and selling is already included in here
+
+        next_state3= self.bid_sell_system.clear_previous_round()
+
+        action = self.PolicyPlannerAgent.select_action(next_state3)
+        
+        if verbose:
+            print(["%.2f" % tax_rate for tax_rate in self.PolicyPlannerAgent.current_tax_rate])
+        
+        total_cost = self.PolicyPlannerAgent.apply_action(action, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+        next_state2 = self.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
+        reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+        
+        # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
+        self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
+        self.PolicyPlannerAgent.replay()  # Experience replay
+        self.bid_sell_system.end_round()
+        total_reward_individual = sum([person.get_reward() for person in self.persons])
+        return [reward_policy_planner, total_reward_individual]
+
+    def simulate_lifecycle(self, NUM_EPISODES):
+        total_reward_policy_planner = 0
+        total_reward_individual = 0
+        is_terminal_state = False
+        verbose = False
+
+        for episode in range(NUM_EPISODES):
+            if episode == NUM_EPISODES - 1:
+                is_terminal_state = True
+            
+            if episode % 10:
+                print('Episode', episode)
+                verbose = True
+
+            reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
+            verbose = False
+            total_reward_policy_planner += reward_policy_planner
+            total_reward_individual += reward_individual
+            # Optionally decrease epsilon over time to reduce exploration
+            if EPSILON > 0.01:
+                EPSILON *= 0.995
+
+        print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+
+
 
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         for person in self.persons:
