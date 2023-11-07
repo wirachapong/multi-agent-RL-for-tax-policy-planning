@@ -142,6 +142,10 @@ class Environment:
                 self.PolicyPlannerAgent.EPSILON *= 0.995
 
         return [reward_policy_planner, total_reward_individual]
+    
+    def reset_persons(self):
+        self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(len(self.persons))]
+
 
     def simulate_lifecycle(self, NUM_EPISODES):
         total_reward_policy_planner = 0
@@ -165,6 +169,7 @@ class Environment:
             
 
         print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+        self.reset_persons()
 
 
 
