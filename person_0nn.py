@@ -1,6 +1,9 @@
 from person import Person
 from constants_person import EDUCATION_EARNINGS,EXPENSE,ALPHA, GAMMA, BATCH_SIZE, MEMORY_SIZE, EDUCATION_INCREASE
 
+
+
+
 class Person_0nn(Person):
 
     def __init__(self, idx:int, education_level:float, net_worth:float, epsilon:float=0.1, category:str='A'):
@@ -11,9 +14,19 @@ class Person_0nn(Person):
         self.memory = None
         self.optimizer = None
         self.epsilon = None
+
+        self.learning_years_remaining = 0
     
     # Closed form optimal choice ---> BEST RESPONSE 
     def select_action(self, time_step: int, horizon: int):
+        
+        #TODO Complete this
+        # if self.learning_years_remaining:
+        #     self.learning_years_remaining -= 1
+        #     if self.learning_years_remaining == 0:
+        #         education_level += 1 
+        #     return 2
+
         time_steps_left = horizon - 1 - time_step
         income_if_earn = self.potential_income * time_steps_left
         income_if_learn = (self.base_salary * (self.education_level + EDUCATION_INCREASE)) * (time_steps_left - 1)
