@@ -28,7 +28,7 @@ class Environment_0nn(Environment):
     def persons_step(self, is_terminal_state=False):
         # Approach with individual comprehensions
         # current_states = [person.get_state() for person in self.persons]
-        person_actions = [person.select_action(self.time_step, self.horizon, self.PolicyPlannerAgent.tax_rate_for_income) for person in self.persons]
+        person_actions = [person2.select_action(self.time_step, self.horizon, self.PolicyPlannerAgent.tax_rate_for_income) for person2 in self.persons]
 
         for action, person in zip(person_actions, self.persons):
             person.take_action(action, self.PolicyPlannerAgent.tax_rate_for_income)
@@ -49,3 +49,9 @@ class Environment_0nn(Environment):
 
         self.time_step += 1
         return next_state
+
+    def reset_persons(self):
+        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
+        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
+        self.persons = [Person_0nn(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(len(self.persons))]
+

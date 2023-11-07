@@ -183,7 +183,7 @@ class Environment:
         self.PolicyPlannerAgent.replay()  # Experience replay
         self.bid_sell_system.end_round()
         total_reward_individual = sum([person.get_reward() for person in self.persons])
-
+        self.update_history_of_auctions()
         if self.PolicyPlannerAgent.EPSILON > 0.01:
                 self.PolicyPlannerAgent.EPSILON *= 0.995
 
@@ -211,7 +211,7 @@ class Environment:
 
             reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
             verbose = False
-            self.update_history_of_auctions()
+            
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
@@ -231,7 +231,7 @@ class Environment:
             person.sell_history_B=self.create_random_deque(100,0,4,5,60,20)
             person.sell_history_C=self.create_random_deque(100,0,4,5,60,20)
             person.reward_from_token=self.create_random_deque(100,0,0,100,60,35)
-        self.get_history_of_auctions()
+        # self.get_history_of_auctions()
         next_state = self.get_state()
         # self.bid_sell_system.bid_dictionary_A
         # self.bid_sell_system.bid_dictionary_B
