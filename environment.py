@@ -1,4 +1,3 @@
-# environment.py
 import configuration
 from person import Person
 from policyplanneragent import PolicyPlannerAgent
@@ -9,51 +8,22 @@ from collections import deque
 import random
 from configuration import config
 import torch
+import matplotlib.pyplot as plt
+from itertools import accumulate
 
 class Environment:
     def __init__(self, n_persons:int):
-        #self.persons = [Person(self.NNOfPerson,np.random.choice(EDUCATION_LEVELS)) for _ in range(n_persons)]
-        
-        # # Starts with uniformly distributed educations levels:
-        # lower_bound, higher_bound = 1,4
-        # net_worth_turn0 = 0
-        # base_salary = 400
-        # education_levels = np.random.uniform(lower_bound, higher_bound, self.NNOfPerson)
-        # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
-
-        # Starts with same education level
         education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
         net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
         n_brackets = configuration.config.get_constant("N_BRACKETS")
         commodities = configuration.config.get_constant("AVAILABLE_COMMODITIES")
-
         self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(n_persons)] 
-
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
-        # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
         self.bid_sell_system = BidSellSystem(commodities=commodities,agents=self.persons)
         self.EPSILON = configuration.config.get_constant("EPSILON")
-
         self.history_of_transaction_A = []
         self.history_of_transaction_B = []
         self.history_of_transaction_C = []
-
-        
-        # self.current_round_bid_dictA = self.bid_sell_system.current_round_bid_dict_A()
-        # self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
-        # self.current_round_bid_dictB = self.bid_sell_system.current_round_bid_dict_B()
-        # self.current_round_sell_dictB = self.bid_sell_system.current_round_sell_dict_B()
-        # self.current_round_bid_dictC = self.bid_sell_system.current_round_bid_dict_C()
-        # self.current_round_sell_dictC = self.bid_sell_system.current_round_sell_dict_C()
-
-    # class PolicyPlannerAgent:
-    #     def __init__(self, input_dim, num_actions):
-    #         self.model = QNetwork(input_dim, num_actions)
-    #         self.current_tax_rate = [10,12,22,24,32,35,37]
-    #         self.memory = []  # For experience replay
-    #         self.history_of_auctions = []
-    #         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
-
     def get_history_of_auctions(self):
         history_of_A=[]
         history_of_B=[]
@@ -76,6 +46,8 @@ class Environment:
         self.history_of_transaction_A=history_of_A
         self.history_of_transaction_B=history_of_B
         self.history_of_transaction_C=history_of_C
+
+        
     
     def update_history_of_auctions(self):
         current_number=0
@@ -90,6 +62,40 @@ class Environment:
         for person in self.persons:
             current_number+=person.bid_history_C[-1]
         self.history_of_transaction_C.append(current_number)
+
+    def summarize_graph(self):
+        # Calculate the cumulative sums
+        cumulative_sum_A = list(accumulate(self.history_of_transaction_A))
+        cumulative_sum_B = list(accumulate(self.history_of_transaction_B))
+        cumulative_sum_C = list(accumulate(self.history_of_transaction_C))
+
+        # Create subplots
+        fig, axs = plt.subplots(3, 1, figsize=(10, 15))  # 3 rows, 1 column
+
+        # Plot for Transaction A
+        axs[0].plot(cumulative_sum_A, marker='o')
+        axs[0].set_title('Cumulative Sum of Transaction A')
+        axs[0].set_xlabel('Number of Elements')
+        axs[0].set_ylabel('Cumulative Sum')
+
+        # Plot for Transaction B
+        axs[1].plot(cumulative_sum_B, marker='o', color='green')
+        axs[1].set_title('Cumulative Sum of Transaction B')
+        axs[1].set_xlabel('Number of Elements')
+        axs[1].set_ylabel('Cumulative Sum')
+
+        # Plot for Transaction C
+        axs[2].plot(cumulative_sum_C, marker='o', color='red')
+        axs[2].set_title('Cumulative Sum of Transaction C')
+        axs[2].set_xlabel('Number of Elements')
+        axs[2].set_ylabel('Cumulative Sum')
+
+        # Adjust layout to prevent overlap
+        plt.tight_layout()
+
+        # Show the plots
+        plt.show()    
+
     def get_state(self):
         # This method compiles the net worths and education levels of all persons
         # into a single list representing the current state.
@@ -184,7 +190,9 @@ class Environment:
         return [reward_policy_planner, total_reward_individual]
     
     def reset_persons(self):
-        self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(len(self.persons))]
+        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
+        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
+        self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(len(self.persons))]
 
 
     def simulate_lifecycle(self, NUM_EPISODES):
@@ -203,6 +211,7 @@ class Environment:
 
             reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
             verbose = False
+            self.update_history_of_auctions()
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
@@ -222,6 +231,7 @@ class Environment:
             person.sell_history_B=self.create_random_deque(100,0,4,5,60,20)
             person.sell_history_C=self.create_random_deque(100,0,4,5,60,20)
             person.reward_from_token=self.create_random_deque(100,0,0,100,60,35)
+        self.get_history_of_auctions()
         next_state = self.get_state()
         # self.bid_sell_system.bid_dictionary_A
         # self.bid_sell_system.bid_dictionary_B
