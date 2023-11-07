@@ -117,6 +117,12 @@ class Environment:
         next_state = self.get_state()
         return next_state
     
+    def simulate_episode(self):
+        pass
+
+    def simulate_lifecycle(self):
+        pass
+
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         for person in self.persons:
             person.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
