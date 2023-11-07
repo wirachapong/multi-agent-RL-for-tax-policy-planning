@@ -42,6 +42,18 @@ class BidSellSystem:
         self.current_sell_price_B=1000
         self.current_sell_price_C=1000
 
+    def current_round_bid_dict_A(self):
+        return self.bid_current_round_A
+    def current_round_bid_dict_B(self):
+        return self.bid_current_round_B
+    def current_round_bid_dict_C(self):
+        return self.bid_current_round_C
+    def current_round_sell_dict_A(self):
+        return self.sell_current_round_A
+    def current_round_sell_dict_B(self):
+        return self.sell_current_round_B
+    def current_round_sell_dict_C(self):
+        return self.sell_current_round_C
     def clear_previous_round(self):
         # Clear previous round's bids for each token type
         for bid_key in self.bid_previous_round_A:
@@ -73,9 +85,9 @@ class BidSellSystem:
         self.sell_previous_round_A= self.sell_current_round_A
         self.sell_previous_round_B= self.sell_current_round_B
         self.sell_previous_round_C= self.sell_current_round_C   
-        self.buy_previous_round_A= self.buy_current_round_A
-        self.buy_previous_round_B= self.buy_current_round_B
-        self.buy_previous_round_C= self.buy_current_round_C
+        self.bid_previous_round_A= self.bid_current_round_A
+        self.bid_previous_round_B= self.bid_current_round_B
+        self.bid_previous_round_C= self.bid_current_round_C
 
     def update_bid_sell_price(self):
         # For A

@@ -8,6 +8,7 @@ from bid_sell import *
 
 class Environment_0nn(Environment):
     def __init__(self, n_persons:int, horizon: int):
+        super().__init__(n_persons)
         available_category_of_person = ["A","B","C"]
         
         # For person decisions
