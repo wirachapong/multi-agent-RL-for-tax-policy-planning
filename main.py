@@ -1,5 +1,8 @@
 # main.py
+import shutil
+
 import configuration
+import utils
 from environment import Environment
 from environment_0nn import Environment_0nn
 from environment_1nn import Environment_1nn
@@ -10,6 +13,9 @@ import environment_0nn
 import argparse
 from configuration import Configuration, config
 import json
+import os
+from datetime import datetime
+
 
 
 def main():
@@ -37,14 +43,34 @@ def main():
     else:
         env = Environment(NUM_PERSONS)                     # With neural network for each person
 
-
+    rewards = []
     for lifecycle in range(NUM_LIFECYCLES):
         print(f"LIFECYCLE: {lifecycle}")
-        if lifecycle%10 == 0:
-            env.simulate_lifecycle(NUM_EPISODES, True)
-        else:
-            env.simulate_lifecycle(NUM_EPISODES,True)
-    env.save_policy_planner(NUM_LIFECYCLES)
+        env.simulate_lifecycle(NUM_EPISODES)
+
+    save_model(NUM_LIFECYCLES, env)
+
+
+def save_model(NUM_LIFECYCLES, env):
+    if not os.path.exists(configuration.config.get_constant('OUTPUT_FOLDER_PATH')):
+        os.mkdir(configuration.config.get_constant('OUTPUT_FOLDER_PATH'))
+
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H%M%S")
+    directory_name = f"{formatted_datetime}"
+    save_model_path = f"{configuration.config.get_constant('OUTPUT_FOLDER_PATH')}/{directory_name}"
+    os.mkdir(save_model_path)
+
+    utils.plot_reward(env.saved_data["rewards_per_cycle"], 5).savefig(f"{save_model_path}/rewards_per_cycle")
+    for i in range(0, NUM_LIFECYCLES, 10):
+        plot = utils.plot_education_for_cycle(env.saved_data["person_educations"][i])
+        plot.savefig(f"{save_model_path}/education_level_cycle_{i}.png")
+    plot = utils.plot_education_for_cycle(
+        env.saved_data["person_educations"][NUM_LIFECYCLES - 1])
+    plot.savefig(f"{save_model_path}/education_level_cycle_{NUM_LIFECYCLES - 1}_FINAL.png")
+    env.save_policy_planner(f"{save_model_path}/lifecycle_{NUM_LIFECYCLES}_")
+    shutil.copy("config.json", f"{save_model_path}/config.json")
+
 
 if __name__ == "__main__":
     main()

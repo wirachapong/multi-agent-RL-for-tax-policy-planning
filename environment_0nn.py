@@ -15,12 +15,10 @@ class Environment_0nn(Environment):
         # For person decisions
         self.horizon = horizon
         self.time_step = 0
-        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
-        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
         n_brackets = configuration.config.get_constant("N_BRACKETS")
         self.discount_rate_func = utils.get_discount_rate_heuristic(configuration.config.get_constant("DISCOUNT_RATE_HEURISTIC"))
 
-        self.persons = [Person_0nn(idx, random.choice(education_level_turn0), net_worth_turn0, category=random.choice(available_category_of_person), discount_rate=self.discount_rate_func()) for idx in range(n_persons)]
+        self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(available_category_of_person), discount_rate=self.discount_rate_func()) for idx in range(n_persons)]
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         

@@ -92,3 +92,28 @@ def plot_education_for_cycle(education_data: List[List[int]]):
 
     plt.grid(True)
     return plt
+
+def plot_reward(rewards, window_size):
+    # Calculate the moving average over the past 5 iterations
+    moving_average = [np.mean(rewards[i:i + window_size]) for i in
+                      range(len(rewards) - window_size + 1)]
+    x = list(range(1, len(rewards) + 1))
+
+    # Create a line plot for the original data
+    plt.plot(x, rewards, label='Data')
+
+    # Create a line plot for the moving average
+    x_ma = list(range(window_size, len(rewards) + 1))
+    plt.plot(x_ma, moving_average, label='Moving Average (Window Size = 5)')
+
+    # Add labels to the axes
+    plt.xlabel('Iteration')
+    plt.ylabel('Value')
+
+    # Add a title to the plot
+    plt.title('Data and Moving Average')
+
+    # Add a legend
+    plt.legend()
+    return plt
+
