@@ -14,7 +14,7 @@ class Person_0nn(Person):
         self.memory = None
         self.optimizer = None
         self.epsilon = None
-
+        
         self.learning_years_remaining = 0
     
     # Closed form optimal choice ---> BEST RESPONSE 
