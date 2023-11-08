@@ -19,8 +19,8 @@
     50401,
     70450,
     105552,
-    124341,
-    162159
+    164341,
+    302159
 ],
 
   "0nn": true,
@@ -30,8 +30,8 @@
   "COST_OF_LIVING": 42000,
   "NETWORTH_TURN0": 0,
   "NUM_PERSONS": 100,
-  "NUM_EPISODES": 10,
-  "NUM_LIFECYCLES": 1,
+  "NUM_EPISODES": 100,
+  "NUM_LIFECYCLES": 100,
 
   "ALPHA_POLICY": 0.1,
   "GAMMA_POLICY": 0.9,
@@ -54,6 +54,7 @@
   "BASE_SALARY": 10,
   "EDUCATION_INCREASE": 0.1,
 
+  "DISCOUNT_RATE_HEURISTIC": "none",
 
   "ACTIONS": [
     0,
@@ -62,9 +63,9 @@
   ],
   "SALARIES": [
     10000,
-    13000,
+    13500,
     16000,
-    19000,
+    20000,
     22000
   ],
   "AVAILABLE_COMMODITIES": ["A","B","C"]

@@ -1,4 +1,5 @@
 import configuration
+import utils
 from environment import Environment
 from person_0nn import Person_0nn
 from policyplanneragent import PolicyPlannerAgent
@@ -17,8 +18,9 @@ class Environment_0nn(Environment):
         self.education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
         self.net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
         n_brackets = configuration.config.get_constant("N_BRACKETS")
-        
-        self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(self.available_category_of_person)) for idx in range(n_persons)] 
+        # self.discount_rate_func = utils.get_discount_rate_heuristic(configuration.config.get_constant("DISCOUNT_RATE_HEURISTIC"))
+
+        self.persons = [Person_0nn(idx, random.choice(education_level_turn0), net_worth_turn0, category=random.choice(available_category_of_person), discount_rate=self.discount_rate_func()) for idx in range(n_persons)]
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         
@@ -55,7 +57,7 @@ class Environment_0nn(Environment):
         return next_state
 
     def reset_persons(self):
-        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
-        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
-        self.persons = [Person_0nn(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(len(self.persons))]
+        self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(["A","B","C"]), discount_rate=self.discount_rate_func()) for idx in range(len(self.persons))]
 
+    def reset(self):
+        self.time_step = 0
