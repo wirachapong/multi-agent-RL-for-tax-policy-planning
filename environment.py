@@ -1,4 +1,5 @@
 import configuration
+import utils
 from person import Person
 from policyplanneragent import PolicyPlannerAgent
 import numpy as np
@@ -28,7 +29,7 @@ class Environment:
         n_brackets = configuration.config.get_constant("N_BRACKETS")
         commodities = configuration.config.get_constant("AVAILABLE_COMMODITIES")
 
-        self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(n_persons)] 
+        self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(n_persons)]
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         self.bid_sell_system = BidSellSystem(commodities=commodities,agents=self.persons)
@@ -169,7 +170,7 @@ class Environment:
         path = f"saved_models/lifecycle_{lifecycle}_"
     
         tax_rate = np.array(self.PolicyPlannerAgent.current_tax_rate)
-        tax_rate = np.save(tax_rate, path + "tax_rate")
+        tax_rate = np.save(arr= tax_rate, file = path + "tax_rate")
 
         model = self.PolicyPlannerAgent.model
         torch.save(model.state_dict(), path + "model")
@@ -198,7 +199,7 @@ class Environment:
         
         total_cost = self.PolicyPlannerAgent.apply_action(action, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
         next_state2 = self.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
-        reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+        reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
         
         # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
         self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
@@ -222,11 +223,12 @@ class Environment:
         self.fill_random_action_history()
 
 
-    def simulate_lifecycle(self, NUM_EPISODES):
+    def simulate_lifecycle(self, NUM_EPISODES, create_plot = False):
         total_reward_policy_planner = 0
         total_reward_individual = 0
         is_terminal_state = False
         verbose = False
+        education_data = []
 
         for episode in range(NUM_EPISODES):
             if episode == NUM_EPISODES - 1:
@@ -242,13 +244,20 @@ class Environment:
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
-            
 
-        print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner,total_reward_individual]}")
+            education_data.append([person.education_level for person in self.persons])
+        if create_plot:
+            utils.plot_education_for_cycle(education_data).show()
+
+        print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner/1000000,total_reward_individual]}")
         self.reset_persons()
+        self.PolicyPlannerAgent.reset()
+        self.reset()
 
 
 
+    def reset(self):
+        pass
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
         print("filling random action history")
         for person in self.persons:

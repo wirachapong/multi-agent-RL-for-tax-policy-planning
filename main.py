@@ -37,6 +37,7 @@ def main():
     else:
         env = Environment(NUM_PERSONS)                     # With neural network for each person
 
+
     for lifecycle in range(NUM_LIFECYCLES):
         print(f"LIFECYCLE: {lifecycle}")
         if lifecycle%10 == 0:

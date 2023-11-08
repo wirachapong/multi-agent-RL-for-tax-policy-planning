@@ -31,6 +31,8 @@ class PolicyPlannerAgent:
         self.history_of_auctions = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_POLICY"))
         self.EPSILON = configuration.config.get_constant("EPSILON_POLICY")
+        self.first_moves = []
+        self.num_moves = 0
 
     def select_action(self, state):
         if (np.random.uniform(0, 1) < self.EPSILON
@@ -42,7 +44,7 @@ class PolicyPlannerAgent:
                 state_tensor = torch.FloatTensor(state).unsqueeze(0)
                 q_values = self.model(state_tensor)
                 max_values, max_indices = torch.max(q_values, dim=1) 
-                return max_indices[0] 
+                return max_indices[0]
                 # EX Output [1, 0, 1, 2, 0, 1, 0]
                 # 0 = remain same tax rate     1= +0.1 tax rate for the bracket    2 = -0.1 tax rate for the bracket  
 
@@ -75,12 +77,17 @@ class PolicyPlannerAgent:
             self.optimizer.step()
 
     def apply_action(self, action, persons):
+        self.num_moves+=1
         total_cost = 0
         current_tax_rate = self.current_tax_rate
         action_modifiers = [0 if act == 0 else 0.1 if act == 1 else -0.1 for act in action]
         new_tax_rate = [rate + modifier for rate, modifier in zip(current_tax_rate, action_modifiers)]
+        new_tax_rate = [max(min(rate, 80), 0) for rate in new_tax_rate]
         self.current_tax_rate = new_tax_rate
-        
+
+        if len(self.first_moves)<10:
+            self.first_moves.append(new_tax_rate)
+
         return total_cost
     
     def tax_rate_for_income(self, income):
@@ -109,13 +116,22 @@ class PolicyPlannerAgent:
         return total / (len(x)**2 * np.mean(x))
         
     #need to change this one
-    def get_reward(self, total_cost, persons):  
-        gini = self.get_gini(persons)
+    def   get_reward(self, total_cost, persons, is_terminal_state = True):
+        if is_terminal_state:
+            gini = self.get_gini(persons)
 
-        net_worth_sum = sum([person.net_worth for person in persons])
-        reward = net_worth_sum - total_cost
+            net_worth_sum = sum([person.net_worth for person in persons])
+            reward = net_worth_sum - total_cost
+        else:
+            reward = 0
         return reward
-    
+
+    def reset(self):
+        array = np.array(self.first_moves)
+        self.first_moves = []
+        column_averages = np.mean(array, axis=0)
+        self.current_tax_rate = column_averages.tolist()
+
     # def apply_tax(self, persons, brackets, BRACKET_GAP:int=5000):
     #     accumulated_tax=0
     #     for person in persons:
