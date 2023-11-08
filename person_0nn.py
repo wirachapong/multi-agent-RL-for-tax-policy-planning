@@ -6,7 +6,8 @@ from person import Person
 
 class Person_0nn(Person):
 
-    def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float=0.1, category:str='A'):
+    def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float=0.1, category:str='A',
+                 discount_rate: float = 0):
         super().__init__(idx, education_level, net_worth, epsilon, category)
 
         # No neural network for decision making
@@ -16,6 +17,7 @@ class Person_0nn(Person):
         self.epsilon = None
 
         self.learning_years_remaining = 0
+        self.discount_rate = discount_rate
     
     # Closed form optimal choice ---> BEST RESPONSE 
     def select_action(self, time_step: int, horizon: int, tax_function):
@@ -35,7 +37,8 @@ class Person_0nn(Person):
         turns_needed = 0
         for education_level in range(self.education_level + 1, max(self.education_levels) + 1):
             turns_needed += self.education_turns_required[education_level]
-            income_if_learn = self.education_earnings[education_level] * (time_steps_left - turns_needed)
+            income_if_learn, _ = tax_function(self.education_earnings[education_level])
+            income_if_learn *=  (time_steps_left - turns_needed)  # todo Apply time discounting
 
             if income_if_learn > income_if_earn:
                 return 1 # Learn

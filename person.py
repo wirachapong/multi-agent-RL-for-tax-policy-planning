@@ -76,11 +76,14 @@ class Person:
         self.net_worth -= self.cost_of_living
         
     def learn(self, tax_function=None):
+        if not self.turns_left_in_current_education:
+            self.turns_left_in_current_education=self.education_turns_required[self.education_level+1]
 
         if self.turns_left_in_current_education:
             self.turns_left_in_current_education -= 1
             if not self.turns_left_in_current_education:
                 self.education_level += 1
+
             
         self.income_for_the_round, self.tax_for_the_round = 0, 0
         self.potential_income, _ = tax_function(self.education_earnings[self.education_level])
@@ -104,7 +107,7 @@ class Person:
         """Index used to identify this agent. Must be unique within the environment."""
         return self._idx
 
-    def select_action(self):
+    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None, discount_rate: float = 0):
         if np.random.random() < self.epsilon or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_PERSON"):
             return np.random.choice(self.action_space)
         

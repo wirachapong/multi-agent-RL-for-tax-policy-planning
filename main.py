@@ -37,10 +37,13 @@ def main():
     else:
         env = Environment(NUM_PERSONS)                     # With neural network for each person
 
+
     for lifecycle in range(NUM_LIFECYCLES):
         print(f"LIFECYCLE: {lifecycle}")
-        env.simulate_lifecycle(NUM_EPISODES)
-
+        if lifecycle%10 == 0:
+            env.simulate_lifecycle(NUM_EPISODES, True)
+        else:
+            env.simulate_lifecycle(NUM_EPISODES,True)
     env.save_policy_planner(NUM_LIFECYCLES)
 
 if __name__ == "__main__":
