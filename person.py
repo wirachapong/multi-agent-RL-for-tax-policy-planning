@@ -155,11 +155,12 @@ class Person:
             self.optimizer.step()
 
     def check_full_combination(self):
-        if self.category_token_value['A']>=10 and self.category_token_value['B']>=10 and self.category_token_value['C']>=10:
+        if self.category_token_value['A']>=5 and self.category_token_value['B']>=5 and self.category_token_value['C']>=5:
             self.net_worth+=100
-            self.category_token_value['A']-=10
-            self.category_token_value['B']-=10
-            self.category_token_value['C']-=10
+            self.category_token_value['A']-=5
+            self.category_token_value['B']-=5
+            self.category_token_value['C']-=5
+            print("FULLCOMBINATION")
             return 1
         else:
             self.reward_from_token.append(0)
@@ -170,11 +171,11 @@ class Person:
         sum_reward=sum(self.reward_from_token)
         result= sum_reward-sum_bid
         if result>0:
-            self.bid_amount_A+=0.1
-            self.sell_amount_A-=0.1
+            self.bid_amount_A=int(10*self.bid_amount_A+1)/10
+            self.sell_amount_A=int(10*self.bid_amount_A-1)/10
         else: 
-            self.bid_amount_A-=0.1
-            self.sell_amount_A+=0.1
+            self.bid_amount_A=int(10*self.bid_amount_A-1)/10
+            self.sell_amount_A=int(10*self.bid_amount_A+1)/10
 
     # def learn_sell_A(self):
     #     count_sell=sum(1 for elem in self.sell_history_A if elem != 0)
@@ -202,11 +203,11 @@ class Person:
         sum_reward=sum(self.reward_from_token)
         result= sum_reward-sum_bid
         if result>0:
-            self.bid_amount_B+=0.1
-            self.sell_amount_C-=0.1
+            self.bid_amount_B=int(10*self.bid_amount_B+1)/10
+            self.sell_amount_B=int(10*self.bid_amount_B-1)/10
         else: 
-            self.bid_amount_B-=0.1
-            self.sell_amount_C+=0.1
+            self.bid_amount_B=int(10*self.bid_amount_B-1)/10
+            self.sell_amount_B=int(10*self.bid_amount_B+1)/10
 
     # def learn_sell_B(self):
     #     count_sell=sum(1 for elem in self.sell_history_B if elem != 0)
@@ -234,11 +235,11 @@ class Person:
         sum_reward=sum(self.reward_from_token)
         result= sum_reward-sum_bid
         if result>0:
-            self.bid_amount_C+=0.1
-            self.sell_amount_C-=0.1
+            self.bid_amount_C=int(10*self.bid_amount_C+1)/10
+            self.sell_amount_C=int(10*self.bid_amount_C-1)/10
         else: 
-            self.bid_amount_C-=0.1
-            self.sell_amount_C+=0.1
+            self.bid_amount_C=int(10*self.bid_amount_C-1)/10
+            self.sell_amount_C=int(10*self.bid_amount_C+1)/10
 
     # def learn_sell_C(self):
     #     # count_sell=sum(1 for elem in self.sell_history_C if elem != 0)

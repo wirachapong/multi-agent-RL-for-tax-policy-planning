@@ -24,6 +24,7 @@ class Environment:
         self.history_of_transaction_A = []
         self.history_of_transaction_B = []
         self.history_of_transaction_C = []
+        self.fill_random_action_history()
 
     def get_history_of_auctions(self):
         history_of_A=[]
@@ -51,19 +52,22 @@ class Environment:
         
     
     def update_history_of_auctions(self):
-        # current_number=0
-        # for person in self.persons:
-        #     current_number+=person.bid_history_A[-1]
-        # self.history_of_transaction_A.append(current_number)
-        # current_number=0
-        # for person in self.persons:
-        #     current_number+=person.bid_history_B[-1]
-        # self.history_of_transaction_B.append(current_number)
-        # current_number=0
-        # for person in self.persons:
-        #     current_number+=person.bid_history_C[-1]
-        # self.history_of_transaction_C.append(current_number)
-        pass
+        current_number=0
+        for person in self.persons:
+            if len(person.bid_history_A)>0 :
+                current_number+=person.bid_history_A[-1]
+        self.history_of_transaction_A.append(current_number)
+        current_number=0
+        for person in self.persons:
+            if len(person.bid_history_B)>0:
+                current_number+=person.bid_history_B[-1]
+        self.history_of_transaction_B.append(current_number)
+        current_number=0
+        for person in self.persons:
+            if len(person.bid_history_C)>0:
+                current_number+=person.bid_history_C[-1]
+        self.history_of_transaction_C.append(current_number)
+        # pass
 
     def summarize_graph(self):
         # Calculate the cumulative sums
@@ -162,11 +166,17 @@ class Environment:
     def simulate_episode(self, is_terminal_state=False, verbose = False):
 
         next_state0= self.persons_gain_category_token()
-
-        next_state1= self.fill_random_action_history()
         
+        print("simulate episode")
+        print("before bid sell")
+        #print(env.bid_sell_system.bid_dictionary_A,env.bid_sell_system.bid_dictionary_B,env.bid_sell_system.bid_dictionary_C,env.bid_sell_system.sell_dictionary_A,env.bid_sell_system.sell_dictionary_B,env.bid_sell_system.sell_dictionary_C, env.bid_sell_system.bid_current_round_A,env.bid_sell_system.bid_previous_round_A)
+        print(self.bid_sell_system.bid_dictionary_A)
+        print(self.bid_sell_system.sell_dictionary_A)
         next_state2= self.persons_do_bid_sell() # learn of buying and selling is already included in here
-
+        print("after bid sell")
+        #print(env.bid_sell_system.bid_dictionary_A,env.bid_sell_system.bid_dictionary_B,env.bid_sell_system.bid_dictionary_C,env.bid_sell_system.sell_dictionary_A,env.bid_sell_system.sell_dictionary_B,env.bid_sell_system.sell_dictionary_C, env.bid_sell_system.bid_current_round_A,env.bid_sell_system.bid_previous_round_A)
+        print(self.bid_sell_system.bid_dictionary_A)
+        print(self.bid_sell_system.sell_dictionary_A)
         current_state = self.get_state()
 
         action = self.PolicyPlannerAgent.select_action(current_state)
@@ -183,11 +193,11 @@ class Environment:
         self.PolicyPlannerAgent.replay()  # Experience replay
         self.bid_sell_system.end_round()
         total_reward_individual = sum([person.get_reward() for person in self.persons])
-        print("starting again")
-        for person in self.persons:
-            print(person.bid_history_A)
-            break
+        # for person in self.persons:
+        #     print(person.bid_amount_A)
+        #     break
         self.update_history_of_auctions()
+        self.remove_redundant_current_dict()
         if self.PolicyPlannerAgent.EPSILON > 0.01:
                 self.PolicyPlannerAgent.EPSILON *= 0.995
 
@@ -197,6 +207,7 @@ class Environment:
         education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
         net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
         self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(len(self.persons))]
+        self.fill_random_action_history()
 
 
     def simulate_lifecycle(self, NUM_EPISODES):
@@ -227,6 +238,7 @@ class Environment:
 
 
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object
+        print("filling random action history")
         for person in self.persons:
             person.bid_history_A=self.create_random_deque(100,0,4,5,60,20)
             person.bid_history_B=self.create_random_deque(100,0,3,2,70,10)
@@ -255,10 +267,11 @@ class Environment:
 
     def persons_do_bid_sell(self):
         # new version of double_auction_system
-
+        print("bid sell in envi being called")
         full_combination_added=0
 
         for person in self.persons: 
+            # print("new person")
             if person.bid_amount_A>=self.bid_sell_system.current_sell_price_A:
                 smallest_key_less_than_amount = None
                 for key in sorted(self.bid_sell_system.bid_dictionary_A):
@@ -274,7 +287,9 @@ class Environment:
                     # not sure if I should use net_worth or income_for_the_round or other things instead
                     self.persons[idx_of_the_one_selling].net_worth+=person.bid_amount_A
                     full_combination_added+=person.check_full_combination()
+                    # print("complete bidding A")
             else:
+                # print("no bidding A")
                 if person.bid_amount_A in self.bid_sell_system.bid_dictionary_A:
                     person.bid_history_A.append(0)
                     self.bid_sell_system.bid_dictionary_A[person.bid_amount_A].append(person.idx)
@@ -285,6 +300,8 @@ class Environment:
 
             if person.bid_counter_A//10==0:
                 person.learn_bid_A()
+            # print("end of bid")
+            # print(self.bid_sell_system.bid_dictionary_A)
             # print(self.current_round_sell_dictA)
             # print(self.bid_sell_system.sell_dictionary_A)
             # for key, small_values in self.current_round_sell_dictA.items():
@@ -299,28 +316,38 @@ class Environment:
             # print(self.current_round_sell_dictA)
             # print(self.bid_sell_system.sell_dictionary_A)
             if person.can_sell_A():
+                print("can sell A")
+                print(person.sell_amount_A,self.bid_sell_system.current_bid_price_A )
                 if person.sell_amount_A>=self.bid_sell_system.current_bid_price_A:
+                    # print("no selling A")
                     if person.sell_amount_A in self.bid_sell_system.sell_dictionary_A:
                         person.sell_history_A.append(0)
                         self.bid_sell_system.sell_dictionary_A[person.sell_amount_A].append(person.idx)
                     else:
                         person.sell_history_A.append(0)
                         self.bid_sell_system.sell_dictionary_A[person.sell_amount_A]=deque([person.idx])
+                    # print("complete update sell dictionary A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_A<self.bid_sell_system.current_bid_price_A:
-                    smallest_key_greater_than_sell_amount = None
-                    for key in self.bid_sell_system.sell_dictionary_A.keys():
-                        if key > person.sell_amount_A and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
-                            smallest_key_greater_than_sell_amount = key
-                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_A[smallest_key_greater_than_sell_amount]:
-                        person.sell_history_A.append(person.sell_amount_A)
-                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_A[smallest_key_greater_than_sell_amount].popleft()
+                elif self.bid_sell_system.current_bid_price_A>person.sell_amount_A:
+                    print("selling A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
+    
+                    highest_key_higher_than_sell_amount = None
+                    for key in self.bid_sell_system.bid_dictionary_A.keys():
+                        if key > person.sell_amount_A and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
+                            highest_key_higher_than_sell_amount = key
+                    # print(highest_key_higher_than_sell_amount,self.bid_sell_system.bid_dictionary_A[highest_key_higher_than_sell_amount])
+                    if highest_key_higher_than_sell_amount is not None and self.bid_sell_system.bid_dictionary_A[highest_key_higher_than_sell_amount]:
+                        person.sell_history_A.append(highest_key_higher_than_sell_amount)
+                        idx_of_the_person_bidding = self.bid_sell_system.bid_dictionary_A[highest_key_higher_than_sell_amount].popleft()
                         self.bid_sell_system.update_bid_sell_price()
                         person.category_token_value['A']-=2
                         self.persons[idx_of_the_person_bidding].category_token_value['A']+=2
-                        person.net_worth-=person.sell_amount_A
+                        person.net_worth+=person.sell_amount_A
                         # not sure if I should use net_worth or income_for_the_round or other things instead
-                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_A
+                        self.persons[idx_of_the_person_bidding].net_worth-=person.sell_amount_A
+                        print("complete selling A")
             else:
                 person.sell_history_A.append(0)
 
@@ -370,28 +397,38 @@ class Environment:
             if person.bid_counter_B//10==0:
                 person.learn_bid_B()
             if person.can_sell_B():
+                # print("can sell A")
+                # print(person.sell_amount_A,self.bid_sell_system.current_bid_price_A )
                 if person.sell_amount_B>=self.bid_sell_system.current_bid_price_B:
+                    # print("no selling A")
                     if person.sell_amount_B in self.bid_sell_system.sell_dictionary_B:
                         person.sell_history_B.append(0)
                         self.bid_sell_system.sell_dictionary_B[person.sell_amount_B].append(person.idx)
                     else:
                         person.sell_history_B.append(0)
                         self.bid_sell_system.sell_dictionary_B[person.sell_amount_B]=deque([person.idx])
+                    # print("complete update sell dictionary A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_B<self.bid_sell_system.current_bid_price_B:
-                    smallest_key_greater_than_sell_amount = None
-                    for key in self.bid_sell_system.sell_dictionary_B.keys():
-                        if key > person.sell_amount_B and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
-                            smallest_key_greater_than_sell_amount = key
-                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_B[smallest_key_greater_than_sell_amount]:
-                        person.sell_history_B.append(person.sell_amount_B)
-                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_B[smallest_key_greater_than_sell_amount].popleft()
+                elif self.bid_sell_system.current_bid_price_B>person.sell_amount_B:
+                    # print("selling A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
+    
+                    highest_key_higher_than_sell_amount = None
+                    for key in self.bid_sell_system.bid_dictionary_B.keys():
+                        if key > person.sell_amount_B and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
+                            highest_key_higher_than_sell_amount = key
+                    # print(highest_key_higher_than_sell_amount,self.bid_sell_system.bid_dictionary_A[highest_key_higher_than_sell_amount])
+                    if highest_key_higher_than_sell_amount is not None and self.bid_sell_system.bid_dictionary_B[highest_key_higher_than_sell_amount]:
+                        person.sell_history_B.append(highest_key_higher_than_sell_amount)
+                        idx_of_the_person_bidding = self.bid_sell_system.bid_dictionary_B[highest_key_higher_than_sell_amount].popleft()
                         self.bid_sell_system.update_bid_sell_price()
                         person.category_token_value['B']-=2
                         self.persons[idx_of_the_person_bidding].category_token_value['B']+=2
-                        person.net_worth-=person.sell_amount_B
+                        person.net_worth+=person.sell_amount_B
                         # not sure if I should use net_worth or income_for_the_round or other things instead
-                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_B
+                        self.persons[idx_of_the_person_bidding].net_worth-=person.sell_amount_B
+                        # print("complete selling A")
             else:
                 person.sell_history_B.append(0)
 
@@ -424,29 +461,38 @@ class Environment:
             if person.bid_counter_C//10==0:
                 person.learn_bid_C()
             if person.can_sell_C():
+                # print("can sell A")
+                # print(person.sell_amount_A,self.bid_sell_system.current_bid_price_A )
                 if person.sell_amount_C>=self.bid_sell_system.current_bid_price_C:
+                    # print("no selling A")
                     if person.sell_amount_C in self.bid_sell_system.sell_dictionary_C:
                         person.sell_history_C.append(0)
                         self.bid_sell_system.sell_dictionary_C[person.sell_amount_C].append(person.idx)
                     else:
                         person.sell_history_C.append(0)
                         self.bid_sell_system.sell_dictionary_C[person.sell_amount_C]=deque([person.idx])
+                    # print("complete update sell dictionary A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
                     self.bid_sell_system.update_bid_sell_price()
-                elif person.sell_amount_C<self.bid_sell_system.current_bid_price_C:
-                    smallest_key_greater_than_sell_amount = None
-                    for key in self.bid_sell_system.sell_dictionary_C.keys():
-                        if key > person.sell_amount_C and (smallest_key_greater_than_sell_amount is None or key < smallest_key_greater_than_sell_amount):
-                            smallest_key_greater_than_sell_amount = key
-                    if smallest_key_greater_than_sell_amount is not None and self.bid_sell_system.sell_dictionary_C[smallest_key_greater_than_sell_amount]:
-                        person.sell_history_C.append(person.sell_amount_C)
-                        idx_of_the_person_bidding = self.bid_sell_system.sell_dictionary_C[smallest_key_greater_than_sell_amount].popleft()
+                elif self.bid_sell_system.current_bid_price_C>person.sell_amount_C:
+                    # print("selling A")
+                    # print(self.bid_sell_system.sell_dictionary_A)
+    
+                    highest_key_higher_than_sell_amount = None
+                    for key in self.bid_sell_system.bid_dictionary_C.keys():
+                        if key > person.sell_amount_C and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
+                            highest_key_higher_than_sell_amount = key
+                    # print(highest_key_higher_than_sell_amount,self.bid_sell_system.bid_dictionary_A[highest_key_higher_than_sell_amount])
+                    if highest_key_higher_than_sell_amount is not None and self.bid_sell_system.bid_dictionary_C[highest_key_higher_than_sell_amount]:
+                        person.sell_history_C.append(highest_key_higher_than_sell_amount)
+                        idx_of_the_person_bidding = self.bid_sell_system.bid_dictionary_C[highest_key_higher_than_sell_amount].popleft()
                         self.bid_sell_system.update_bid_sell_price()
                         person.category_token_value['C']-=2
                         self.persons[idx_of_the_person_bidding].category_token_value['C']+=2
-                        person.net_worth-=person.sell_amount_C
+                        person.net_worth+=person.sell_amount_C
                         # not sure if I should use net_worth or income_for_the_round or other things instead
-                        self.persons[idx_of_the_person_bidding].net_worth+=person.sell_amount_C
-
+                        self.persons[idx_of_the_person_bidding].net_worth-=person.sell_amount_C
+                        # print("complete selling A")
             else:
                 person.sell_history_C.append(0)
                 
