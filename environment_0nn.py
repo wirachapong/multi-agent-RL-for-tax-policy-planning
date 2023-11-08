@@ -34,7 +34,7 @@ class Environment_0nn(Environment):
     def persons_step(self, is_terminal_state=False):
         # Approach with individual comprehensions
         # current_states = [person.get_state() for person in self.persons]
-        person_actions = [person2.select_action(self.time_step, self.horizon, self.PolicyPlannerAgent.tax_rate_for_income) for person2 in self.persons]
+        person_actions = [person.select_action(self.time_step, self.horizon, self.PolicyPlannerAgent.tax_rate_for_income) for person in self.persons]
 
         for action, person in zip(person_actions, self.persons):
             person.take_action(action, self.PolicyPlannerAgent.tax_rate_for_income)
