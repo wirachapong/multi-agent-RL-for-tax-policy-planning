@@ -22,12 +22,12 @@ class Environment:
         # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
 
         # Starts with same education level
-        education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
-        net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
+        self.education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
+        self.net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")
         n_brackets = configuration.config.get_constant("N_BRACKETS")
         commodities = configuration.config.get_constant("AVAILABLE_COMMODITIES")
 
-        self.persons = [Person(i,  np.random.choice(education_level_turn0), net_worth_turn0) for i in range(n_persons)] 
+        self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(n_persons)] 
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate

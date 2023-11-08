@@ -27,7 +27,7 @@
   "1nn": false,
   "Nnn": false,
 
-  "COST_OF_LIVING": 10000,
+  "COST_OF_LIVING": 42000,
   "NETWORTH_TURN0": 0,
   "NUM_PERSONS": 100,
   "NUM_EPISODES": 100,
