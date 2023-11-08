@@ -116,7 +116,7 @@ class PolicyPlannerAgent:
         return total / (len(x)**2 * np.mean(x))
         
     #need to change this one
-    def   get_reward(self, total_cost, persons, is_terminal_state = True):
+    def get_reward(self, total_cost, persons, is_terminal_state = True):
         if is_terminal_state:
             gini = self.get_gini(persons)
 
