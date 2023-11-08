@@ -44,6 +44,7 @@ def main():
             env.simulate_lifecycle(NUM_EPISODES, True)
         else:
             env.simulate_lifecycle(NUM_EPISODES,True)
+
     env.save_policy_planner(NUM_LIFECYCLES)
 
 if __name__ == "__main__":
