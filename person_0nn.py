@@ -15,7 +15,7 @@ class Person_0nn(Person):
         self.memory = None
         self.optimizer = None
         self.epsilon = None
-
+        
         self.learning_years_remaining = 0
         self.discount_rate = discount_rate
     

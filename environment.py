@@ -1,3 +1,4 @@
+# environment.py
 import configuration
 import utils
 from person import Person
@@ -35,12 +36,31 @@ class Environment:
         self.persons = [Person(i,  np.random.choice(self.education_level_turn0), self.net_worth_turn0) for i in range(n_persons)]
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
+        # len 2*len(self.persons)+7 = from net_worths+educations+tax_rate
         self.bid_sell_system = BidSellSystem(commodities=commodities,agents=self.persons)
         self.EPSILON = configuration.config.get_constant("EPSILON")
+
         self.history_of_transaction_A = []
         self.history_of_transaction_B = []
         self.history_of_transaction_C = []
         self.fill_random_action_history()
+
+
+        
+        # self.current_round_bid_dictA = self.bid_sell_system.current_round_bid_dict_A()
+        # self.current_round_sell_dictA = self.bid_sell_system.current_round_sell_dict_A()
+        # self.current_round_bid_dictB = self.bid_sell_system.current_round_bid_dict_B()
+        # self.current_round_sell_dictB = self.bid_sell_system.current_round_sell_dict_B()
+        # self.current_round_bid_dictC = self.bid_sell_system.current_round_bid_dict_C()
+        # self.current_round_sell_dictC = self.bid_sell_system.current_round_sell_dict_C()
+
+    # class PolicyPlannerAgent:
+    #     def __init__(self, input_dim, num_actions):
+    #         self.model = QNetwork(input_dim, num_actions)
+    #         self.current_tax_rate = [10,12,22,24,32,35,37]
+    #         self.memory = []  # For experience replay
+    #         self.history_of_auctions = []
+    #         self.optimizer = optim.Adam(self.model.parameters(), lr=ALPHA)
 
     def get_history_of_auctions(self):
         history_of_A=[]
@@ -64,8 +84,6 @@ class Environment:
         self.history_of_transaction_A=history_of_A
         self.history_of_transaction_B=history_of_B
         self.history_of_transaction_C=history_of_C
-
-        
     
     def update_history_of_auctions(self):
         current_number=0
@@ -116,7 +134,7 @@ class Environment:
         plt.tight_layout()
 
         # Show the plots
-        plt.show()    
+        plt.show()
 
     def get_state(self):
         # This method compiles the net worths and education levels of all persons
@@ -242,7 +260,7 @@ class Environment:
 
             reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
             verbose = False
-            
+
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
@@ -256,8 +274,6 @@ class Environment:
         self.reset_persons()
         self.PolicyPlannerAgent.reset()
         self.reset()
-
-
 
 
 
@@ -358,7 +374,7 @@ class Environment:
                 elif self.bid_sell_system.current_bid_price_A>person.sell_amount_A:
                     # print("selling A")
                     # print(self.bid_sell_system.sell_dictionary_A)
-    
+
                     highest_key_higher_than_sell_amount = None
                     for key in self.bid_sell_system.bid_dictionary_A.keys():
                         if key > person.sell_amount_A and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
@@ -439,7 +455,7 @@ class Environment:
                 elif self.bid_sell_system.current_bid_price_B>person.sell_amount_B:
                     # print("selling A")
                     # print(self.bid_sell_system.sell_dictionary_A)
-    
+
                     highest_key_higher_than_sell_amount = None
                     for key in self.bid_sell_system.bid_dictionary_B.keys():
                         if key > person.sell_amount_B and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
@@ -503,7 +519,7 @@ class Environment:
                 elif self.bid_sell_system.current_bid_price_C>person.sell_amount_C:
                     # print("selling A")
                     # print(self.bid_sell_system.sell_dictionary_A)
-    
+
                     highest_key_higher_than_sell_amount = None
                     for key in self.bid_sell_system.bid_dictionary_C.keys():
                         if key > person.sell_amount_C and (highest_key_higher_than_sell_amount is None or key > highest_key_higher_than_sell_amount):
