@@ -26,7 +26,7 @@ class QNetwork(nn.Module):
 class PolicyPlannerAgent:
     def __init__(self, input_dim:int, num_actions:int):
         self.model = QNetwork(input_dim, num_actions)
-        self.current_tax_rate = [10,12,22,24,32,35,37]
+        self.current_tax_rate = configuration.config.get_constant("START_TAX_RATE")
         self.memory = deque()  # For experience replay
         self.history_of_auctions = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=configuration.config.get_constant("ALPHA_POLICY"))

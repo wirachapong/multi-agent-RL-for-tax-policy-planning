@@ -45,7 +45,8 @@ def main():
 
     rewards = []
     for lifecycle in range(NUM_LIFECYCLES):
-        print(f"LIFECYCLE: {lifecycle}")
+        if lifecycle%5 == 0:
+            print(f"LIFECYCLE: {lifecycle}")
         env.simulate_lifecycle(NUM_EPISODES)
 
     save_model(NUM_LIFECYCLES, env)
@@ -62,7 +63,7 @@ def save_model(NUM_LIFECYCLES, env):
     os.mkdir(save_model_path)
 
     utils.plot_reward(env.saved_data["rewards_per_cycle"], 5).savefig(f"{save_model_path}/rewards_per_cycle")
-    for i in range(0, NUM_LIFECYCLES, 10):
+    for i in range(0, NUM_LIFECYCLES, int(NUM_LIFECYCLES/10)):
         plot = utils.plot_education_for_cycle(env.saved_data["person_educations"][i])
         plot.savefig(f"{save_model_path}/education_level_cycle_{i}.png")
     plot = utils.plot_education_for_cycle(

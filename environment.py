@@ -251,12 +251,13 @@ class Environment:
         verbose = False
         education_data = []
 
+        print_info = event_occurred = np.random.choice([True, False], p=[0.1, 1 - 0.1])
         for episode in range(NUM_EPISODES):
             if episode == NUM_EPISODES - 1:
                 is_terminal_state = True
             
-            if episode % 10 == 0:
-                print('Episode', episode)
+            if episode == 0 and print_info:
+                # print('Episode', episode)
                 verbose = True
 
             reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
@@ -265,13 +266,15 @@ class Environment:
             total_reward_policy_planner += reward_policy_planner
             total_reward_individual += reward_individual
             # Optionally decrease epsilon over time to reduce exploration
+
             education_data.append([person.education_level for person in self.persons])
 
         #save data
         self.saved_data["person_educations"].append(education_data)
         self.saved_data["rewards_per_cycle"].append(total_reward_policy_planner)
 
-        print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner/1000000,total_reward_individual]}")
+        if print_info:
+            print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner/1000000,total_reward_individual]}")
         self.reset_persons()
         self.PolicyPlannerAgent.reset()
         self.reset()

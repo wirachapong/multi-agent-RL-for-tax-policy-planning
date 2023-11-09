@@ -20,7 +20,7 @@ class Person_0nn(Person):
         self.discount_rate = discount_rate
     
     # Closed form optimal choice ---> BEST RESPONSE 
-    def select_action(self, time_step: int, horizon: int, tax_function):
+    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None, discount_rate: float = 0):
         if self.education_level == max(self.education_levels):
             return 0
         
