@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from itertools import accumulate
 
 class Environment:
-    def __init__(self, n_persons:int):
+    def __init__(self, n_persons:int, random_seed: int = 1):
         #self.persons = [Person(self.NNOfPerson,np.random.choice(EDUCATION_LEVELS)) for _ in range(n_persons)]
         
         # # Starts with uniformly distributed educations levels:
@@ -24,6 +24,7 @@ class Environment:
         # education_levels = np.random.uniform(lower_bound, higher_bound, self.NNOfPerson)
         # self.persons = [Person(i, education_levels[i], net_worth_turn0, base_salary) for i in range(self.n_persons)]
 
+        self.random_seed= random_seed
         # Starts with same education level
         self.education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
         self.net_worth_turn0 = configuration.config.get_constant("NETWORTH_TURN0")

@@ -62,11 +62,11 @@
     2
   ],
   "SALARIES": [
+    8000,
     10000,
-    13500,
-    16000,
-    20000,
-    22000
+    13000,
+    15000,
+    16000
   ],
   "AVAILABLE_COMMODITIES": ["A","B","C"],
   "OUTPUT_FOLDER_PATH": "output"

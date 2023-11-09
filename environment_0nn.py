@@ -8,8 +8,8 @@ from double_auction import *
 from bid_sell import *
 
 class Environment_0nn(Environment):
-    def __init__(self, n_persons:int, horizon: int):
-        super().__init__(n_persons)
+    def __init__(self, n_persons:int, horizon: int, random_seed = 1):
+        super().__init__(n_persons, random_seed = random_seed)
         self.available_category_of_person = ["A","B","C"]
         
         # For person decisions
@@ -20,7 +20,8 @@ class Environment_0nn(Environment):
         n_brackets = configuration.config.get_constant("N_BRACKETS")
         self.discount_rate_func = utils.get_discount_rate_heuristic(configuration.config.get_constant("DISCOUNT_RATE_HEURISTIC"))
 
-        self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(available_category_of_person), discount_rate=self.discount_rate_func()) for idx in range(n_persons)]
+        random.seed(self.random_seed)
+        self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(self.available_category_of_person), discount_rate=self.discount_rate_func()) for idx in range(n_persons)]
 
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(configuration.config.get_constant("ACTIONS")))
         
@@ -52,8 +53,22 @@ class Environment_0nn(Environment):
         self.time_step += 1
         return next_state
 
-    def reset_persons(self):
+    def reset_persons(self, reset_seed: bool = True):
+        if reset_seed:
+            random.seed(self.random_seed)
         self.persons = [Person_0nn(idx, random.choice(self.education_level_turn0), self.net_worth_turn0, category=random.choice(["A","B","C"]), discount_rate=self.discount_rate_func()) for idx in range(len(self.persons))]
 
     def reset(self):
         self.time_step = 0
+
+    # override functions
+    def persons_gain_category_token(self):
+        pass
+    def persons_do_bid_sell(self):
+        pass
+    def update_history_of_auctions(self):
+        pass
+    def remove_redundant_current_dict(self):
+        pass
+
+
