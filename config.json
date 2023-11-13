@@ -31,15 +31,15 @@
   "NETWORTH_TURN0": 0,
   "NUM_PERSONS": 50,
   "NUM_EPISODES": 60,
-  "NUM_LIFECYCLES": 50000,
+  "NUM_LIFECYCLES": 2000,
 
   "ALPHA_POLICY": 0.1,
   "GAMMA_POLICY": 0.9999,
-  "EPSILON_POLICY": 0.2,
+  "EPSILON_POLICY": 0.1,
   "BATCH_SIZE_POLICY": 128,
   "MEMORY_SIZE_POLICY": 20,
   "N_BRACKETS": 7,
-  "BRACKET_GAP": 30000,
+  "BRACKET_GAP": 20000,
   "W_EQUALITY": 0.5,
 
 
@@ -69,13 +69,13 @@
     25000
   ],
   "START_TAX_RATE": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40
   ],
   "AVAILABLE_COMMODITIES": ["A","B","C"],
   "OUTPUT_FOLDER_PATH": "output"

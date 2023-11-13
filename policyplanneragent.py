@@ -33,10 +33,16 @@ class PolicyPlannerAgent:
         self.EPSILON = configuration.config.get_constant("EPSILON_POLICY")
         self.first_moves = []
         self.num_moves = 0
+        self.count = 0
 
     def select_action(self, state):
+        if self.memory:
+            print("not empty")
         if (np.random.uniform(0, 1) < self.EPSILON
                 or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_POLICY")):
+            self.count+=1
+            # if self.count%100:
+                # print ("count:", self.count, "memory_len:", len(self.memory))
             return torch.tensor([np.random.choice(configuration.config.get_constant("ACTIONS")) for _ in range(len(self.current_tax_rate))])
 
         else:
