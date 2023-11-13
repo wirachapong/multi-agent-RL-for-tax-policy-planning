@@ -16,7 +16,7 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(64, 7 * num_actions)
+        self.fc3 = nn.Linear(64, 7 * num_actions)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
