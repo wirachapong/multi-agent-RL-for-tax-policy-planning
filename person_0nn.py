@@ -33,16 +33,19 @@ class Person_0nn(Person):
 
         time_steps_left = horizon - 1 - time_step
         income_if_earn, _  = tax_function(self.education_earnings[self.education_level])
-        income_if_earn += self.tax_for_the_round
+        income_if_earn += self.last_tax_income
         income_if_earn = utils.discounted_sum_constant_reward_vectorized(income_if_earn, self.discount_rate, time_steps_left)
 
         turns_needed = 0
         for education_level in range(self.education_level + 1, max(self.education_levels) + 1):
             turns_needed += self.education_turns_required[education_level]
+            if time_steps_left - turns_needed<0:
+                continue
+
             income_if_learn, _ = tax_function(self.education_earnings[education_level])
-            income_if_learn += self.tax_for_the_round
+            income_if_learn += self.last_tax_income
             income_if_learn = utils.discounted_sum_constant_reward_vectorized(income_if_learn, self.discount_rate, time_steps_left - turns_needed) * self.discount_rate**turns_needed
-            income_if_learn +=  utils.discounted_sum_constant_reward_vectorized(self.tax_for_the_round* turns_needed, self.discount_rate, turns_needed)
+            income_if_learn +=  utils.discounted_sum_constant_reward_vectorized(self.last_tax_income* turns_needed, self.discount_rate, turns_needed)
             # income_if_learn *=  (time_steps_left - turns_needed)  # todo Apply time discounting
 
             if income_if_learn > income_if_earn:

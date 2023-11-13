@@ -47,7 +47,7 @@ def main():
     for lifecycle in range(NUM_LIFECYCLES):
         if lifecycle%5 == 0:
             print(f"LIFECYCLE: {lifecycle}")
-        env.simulate_lifecycle(NUM_EPISODES)
+        env.simulate_lifecycle(NUM_EPISODES, lifecycle< configuration.config.get_constant("EPSILON_ROUNDS_POLICY"))
 
     save_model(NUM_LIFECYCLES, env)
 

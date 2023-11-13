@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
+import torch.nn.functional as F
 import configuration
 
 
@@ -16,7 +16,7 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 7 * num_actions)
+        self.fc4 = nn.Linear(64, 7 * num_actions)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
@@ -94,8 +94,34 @@ class PolicyPlannerAgent:
             self.memory.popleft()
 
     def replay(self):
+        # if len(self.memory) < configuration.config.get_constant("BATCH_SIZE_POLICY"):
+        #     return
+        #
+        # batch_indices = np.random.choice(len(self.memory),
+        #                                  configuration.config.get_constant(
+        #                                      "BATCH_SIZE_POLICY"), replace=False)
+        # batch = [self.memory[i] for i in batch_indices]
+        #
+        # for state, action, reward, next_state in batch:
+        #     state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        #     next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
+        #
+        #     with torch.no_grad():
+        #         max_values, max_indices = torch.max(self.model(next_state_tensor), dim=1)
+        #         target = reward + configuration.config.get_constant(
+        #             "GAMMA_POLICY") * max_values
+        #
+        #     q_values = self.model(state_tensor)
+        #     loss = nn.MSELoss()(q_values[0][action], target)
+        #
+        #     self.optimizer.zero_grad()
+        #     loss.backward()
+        #     self.optimizer.step()
         if len(self.memory) < configuration.config.get_constant("BATCH_SIZE_POLICY"):
             return
+
+        entropy_coef = configuration.config.get_constant(
+            "ENTROPY_COEF")  # Get entropy coefficient constant from configuration
 
         batch_indices = np.random.choice(len(self.memory),
                                          configuration.config.get_constant(
@@ -107,13 +133,26 @@ class PolicyPlannerAgent:
             next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
 
             with torch.no_grad():
-                max_values, max_indices = torch.max(self.model(next_state_tensor), dim=1)
+                future_q_values = self.model(next_state_tensor)
+                max_future_q_values, _ = torch.max(future_q_values, dim=1)
                 target = reward + configuration.config.get_constant(
-                    "GAMMA_POLICY") * max_values
+                    "GAMMA_POLICY") * max_future_q_values
 
-            q_values = self.model(state_tensor)
-            loss = nn.MSELoss()(q_values[0][action], target)
+            current_q_values = self.model(state_tensor)
+            current_q_value = current_q_values[0][action]
 
+            # Compute the loss as the mean squared error between the current and target Q-values
+            loss = nn.MSELoss()(current_q_value, target)
+
+            # Compute the entropy of the policy (negative log of softmax probabilities of actions)
+            log_softmax_actions = F.log_softmax(current_q_values, dim=1)
+            softmax_actions = torch.exp(log_softmax_actions)
+            entropy = -(softmax_actions * log_softmax_actions).sum()
+
+            # Add entropy regularization to the loss
+            loss -= entropy_coef * entropy
+
+            # Perform a gradient descent step
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

@@ -17,7 +17,7 @@ def discounted_sum_constant_reward_vectorized(reward, discount_rate, k):
 
 def get_discount_rate_heuristic(name: str):
     if name == "random_dist_0_10":
-        return lambda : 1-(random.randrange(5)*8) / 100.0
+        return lambda : 1-(random.randrange(40)) / 100.0
     if name =="none":
         return lambda : 1
 

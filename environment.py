@@ -158,7 +158,10 @@ class Environment:
         return sum([person.income_for_the_round for person in self.persons])
     
     def distribute_tax(self, accumulated_tax):
+        # print("dist:", accumulated_tax/len(self.persons))
+        round_tax = accumulated_tax/len(self.persons)
         for person in self.persons:
+            person.set_tax_income_for_round(accumulated_tax/len(self.persons))
             person.income_for_the_round += accumulated_tax/len(self.persons)
 
     #! Either this in main.py or in Environment.py
@@ -242,12 +245,15 @@ class Environment:
         self.fill_random_action_history()
 
 
-    def simulate_lifecycle(self, NUM_EPISODES):
+    def simulate_lifecycle(self, NUM_EPISODES, epsilon_policy: bool):
         total_reward_policy_planner = 0
         total_reward_individual = 0
         is_terminal_state = False
         verbose = False
         education_data = []
+        if not epsilon_policy:
+            self.PolicyPlannerAgent.EPSILON = 0
+        # print(self.PolicyPlannerAgent.EPSILON)
 
         print_info = event_occurred = np.random.choice([True, False], p=[0.1, 1 - 0.1])
         action = self.PolicyPlannerAgent.select_action(self.get_state())
@@ -258,7 +264,6 @@ class Environment:
                 is_terminal_state = True
             
             if episode == 0 and print_info:
-                print("EPSILON", self.PolicyPlannerAgent.EPSILON)
                 # print('Episode', episode)
                 verbose = True
 
@@ -275,10 +280,6 @@ class Environment:
         self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state)
         self.PolicyPlannerAgent.replay()  # Experience replay
 
-        if self.PolicyPlannerAgent.EPSILON > 0.07:
-                self.PolicyPlannerAgent.EPSILON *= 0.99995
-        else:
-            self.PolicyPlannerAgent.EPSILON=0
 
 
         #save data

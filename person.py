@@ -284,5 +284,10 @@ class Person:
             return True
         else:
             return False
+
+    def set_tax_income_for_round(self, tax_income):
+        self.last_tax_income = tax_income
+        self.net_worth+=tax_income
+
     
     
