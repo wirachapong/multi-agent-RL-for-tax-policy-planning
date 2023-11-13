@@ -14,6 +14,7 @@ import configuration
 class QNetwork(nn.Module):
     def __init__(self, input_dim: int, num_actions: int):
         super(QNetwork, self).__init__()
+        self.num_actions = num_actions
         self.fc1 = nn.Linear(input_dim, 128)
         self.fc2 = nn.Linear(128, 128)
         self.fc3 = nn.Linear(128, 7 * num_actions)
@@ -22,7 +23,7 @@ class QNetwork(nn.Module):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = self.fc3(x)
-        return x.view(-1, 3, 7)
+        return x.view(-1, self.num_actions, 7)
 
 
 class PolicyPlannerAgent:
