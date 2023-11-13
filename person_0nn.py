@@ -45,7 +45,7 @@ class Person_0nn(Person):
             income_if_learn, _ = tax_function(self.education_earnings[education_level])
             income_if_learn += self.last_tax_income
             income_if_learn = utils.discounted_sum_constant_reward_vectorized(income_if_learn, self.discount_rate, time_steps_left - turns_needed) * self.discount_rate**turns_needed
-            income_if_learn +=  utils.discounted_sum_constant_reward_vectorized(self.last_tax_income* turns_needed, self.discount_rate, turns_needed)
+            income_if_learn +=  utils.discounted_sum_constant_reward_vectorized(self.last_tax_income, self.discount_rate, turns_needed)
             # income_if_learn *=  (time_steps_left - turns_needed)  # todo Apply time discounting
 
             if income_if_learn > income_if_earn:
