@@ -161,8 +161,7 @@ class Environment:
         # print("dist:", accumulated_tax/len(self.persons))
         round_tax = accumulated_tax/len(self.persons)
         for person in self.persons:
-            person.set_tax_income_for_round(accumulated_tax/len(self.persons))
-            person.income_for_the_round += accumulated_tax/len(self.persons)
+            person.set_tax_income_for_round(round_tax)
 
     #! Either this in main.py or in Environment.py
     def persons_step(self, is_terminal_state=False):
@@ -252,7 +251,7 @@ class Environment:
         verbose = False
         education_data = []
         if not epsilon_policy:
-            self.PolicyPlannerAgent.EPSILON = 0
+            self.PolicyPlannerAgent.EPSILON = 0.05
         # print(self.PolicyPlannerAgent.EPSILON)
 
         print_info = event_occurred = np.random.choice([True, False], p=[0.1, 1 - 0.1])
