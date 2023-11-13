@@ -27,17 +27,17 @@
   "1nn": false,
   "Nnn": false,
 
-  "COST_OF_LIVING": 40000,
+  "COST_OF_LIVING": 45000,
   "NETWORTH_TURN0": 0,
   "NUM_PERSONS": 50,
   "NUM_EPISODES": 60,
-  "NUM_LIFECYCLES": 2000,
+  "NUM_LIFECYCLES": 20000,
 
   "ALPHA_POLICY": 0.1,
   "GAMMA_POLICY": 0.9999,
   "EPSILON_POLICY": 0.1,
-  "BATCH_SIZE_POLICY": 128,
-  "MEMORY_SIZE_POLICY": 20,
+  "BATCH_SIZE_POLICY": 32,
+  "MEMORY_SIZE_POLICY": 64,
   "N_BRACKETS": 7,
   "BRACKET_GAP": 20000,
   "W_EQUALITY": 0.5,
@@ -54,7 +54,7 @@
   "BASE_SALARY": 10,
   "EDUCATION_INCREASE": 0.1,
 
-  "DISCOUNT_RATE_HEURISTIC": "random_dist_0_10",
+  "DISCOUNT_RATE_HEURISTIC": "none",
 
   "ACTIONS": [
     0,
@@ -69,13 +69,13 @@
     25000
   ],
   "START_TAX_RATE": [
-    10,
-    15,
     20,
-    25,
-    30,
-    35,
-    40
+    20,
+    20,
+    20,
+    20,
+    20,
+    20
   ],
   "AVAILABLE_COMMODITIES": ["A","B","C"],
   "OUTPUT_FOLDER_PATH": "output"

@@ -232,10 +232,8 @@ class Environment:
         #     break
         self.update_history_of_auctions()
         self.remove_redundant_current_dict()
-        if self.PolicyPlannerAgent.EPSILON > 0.01:
-                self.PolicyPlannerAgent.EPSILON *= 0.99998
 
-        return [0, total_reward_individual]
+        return [0, total_reward_individual, current_state, next_state2]
     
     def reset_persons(self):
         education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
@@ -260,10 +258,11 @@ class Environment:
                 is_terminal_state = True
             
             if episode == 0 and print_info:
+                print("EPSILON", self.PolicyPlannerAgent.EPSILON)
                 # print('Episode', episode)
                 verbose = True
 
-            reward_policy_planner, reward_individual = self.simulate_episode(is_terminal_state, verbose)
+            reward_policy_planner, reward_individual, current_state, next_state = self.simulate_episode(is_terminal_state, verbose)
             verbose = False
 
             total_reward_policy_planner += reward_policy_planner
@@ -272,6 +271,15 @@ class Environment:
 
             education_data.append([person.education_level for person in self.persons])
         reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+
+        self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state)
+        self.PolicyPlannerAgent.replay()  # Experience replay
+
+        if self.PolicyPlannerAgent.EPSILON > 0.07:
+                self.PolicyPlannerAgent.EPSILON *= 0.99995
+        else:
+            self.PolicyPlannerAgent.EPSILON=0
+
 
         #save data
         self.saved_data["person_educations"].append(education_data)
