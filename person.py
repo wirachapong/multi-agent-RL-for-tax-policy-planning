@@ -34,6 +34,7 @@ class Person:
         self.potential_income = self.base_salary * self.education_level
         self.income_for_the_round = 0
         self.tax_for_the_round = 0
+        self.last_tax_income = 0
 
         # Informational 
         self.state = [self.net_worth, self.potential_income]
@@ -107,7 +108,7 @@ class Person:
         """Index used to identify this agent. Must be unique within the environment."""
         return self._idx
 
-    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None, discount_rate: float = 0):
+    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None):
         if np.random.random() < self.epsilon or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_PERSON"):
             return np.random.choice(self.action_space)
         
@@ -129,6 +130,10 @@ class Person:
     # def step(self):
     #     action = self.select_action()
     #     self.take_action(action)
+
+    def get_tax_dist(self, amount: float):
+        self.last_tax_income = amount
+        self.net_worth += amount
 
     def remember(self, state, action:int, reward, next_state):
         self.memory.append((state, action, reward, next_state))

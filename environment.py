@@ -213,18 +213,18 @@ class Environment:
         # print(self.bid_sell_system.sell_dictionary_A)
         current_state = self.get_state()
 
-        action = self.PolicyPlannerAgent.select_action(current_state)
+        # action = self.PolicyPlannerAgent.select_action(current_state)
         
         if verbose:
             print(["%.2f" % tax_rate for tax_rate in self.PolicyPlannerAgent.current_tax_rate])
         
-        total_cost = self.PolicyPlannerAgent.apply_action(action, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+        # total_cost = self.PolicyPlannerAgent.apply_action(action, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
         next_state2 = self.persons_step(is_terminal_state) # all persons learn or earn and tax is collected.
-        reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+        # reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
         
         # we used 0 for now in the (a,b) for previously used get_reward function due to how there's a change in how the policy changed from our first structure
-        self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
-        self.PolicyPlannerAgent.replay()  # Experience replay
+        # self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state2)
+        # self.PolicyPlannerAgent.replay()  # Experience replay
         self.bid_sell_system.end_round()
         total_reward_individual = sum([person.get_reward() for person in self.persons])
         # for person in self.persons:
@@ -233,9 +233,9 @@ class Environment:
         self.update_history_of_auctions()
         self.remove_redundant_current_dict()
         if self.PolicyPlannerAgent.EPSILON > 0.01:
-                self.PolicyPlannerAgent.EPSILON *= 0.995
+                self.PolicyPlannerAgent.EPSILON *= 0.99998
 
-        return [reward_policy_planner, total_reward_individual]
+        return [0, total_reward_individual]
     
     def reset_persons(self):
         education_level_turn0 = configuration.config.get_constant("EDUCATION_LEVELS")
@@ -252,6 +252,9 @@ class Environment:
         education_data = []
 
         print_info = event_occurred = np.random.choice([True, False], p=[0.1, 1 - 0.1])
+        action = self.PolicyPlannerAgent.select_action(self.get_state())
+        total_cost = self.PolicyPlannerAgent.apply_action(action, self.persons)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
+
         for episode in range(NUM_EPISODES):
             if episode == NUM_EPISODES - 1:
                 is_terminal_state = True
@@ -268,13 +271,14 @@ class Environment:
             # Optionally decrease epsilon over time to reduce exploration
 
             education_data.append([person.education_level for person in self.persons])
+        reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
 
         #save data
         self.saved_data["person_educations"].append(education_data)
-        self.saved_data["rewards_per_cycle"].append(total_reward_policy_planner)
+        self.saved_data["rewards_per_cycle"].append(reward_policy_planner)
 
         if print_info:
-            print(f"Total reward after {NUM_EPISODES} episodes: {[total_reward_policy_planner/1000000,total_reward_individual]}")
+            print(f"Total reward after {NUM_EPISODES} episodes: {[reward_policy_planner/1000000,total_reward_individual]}")
         self.reset_persons()
         self.PolicyPlannerAgent.reset()
         self.reset()

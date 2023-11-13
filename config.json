@@ -16,7 +16,7 @@
   ],
 
   "EDUCATION_EARNINGS": [
-    50401,
+   50401,
     70450,
     105552,
     164341,
@@ -27,19 +27,19 @@
   "1nn": false,
   "Nnn": false,
 
-  "COST_OF_LIVING": 10000,
+  "COST_OF_LIVING": 40000,
   "NETWORTH_TURN0": 0,
-  "NUM_PERSONS": 100,
-  "NUM_EPISODES": 30,
-  "NUM_LIFECYCLES": 20,
+  "NUM_PERSONS": 50,
+  "NUM_EPISODES": 60,
+  "NUM_LIFECYCLES": 50000,
 
   "ALPHA_POLICY": 0.1,
-  "GAMMA_POLICY": 0.9,
-  "EPSILON_POLICY": 0.1,
-  "BATCH_SIZE_POLICY": 64,
-  "MEMORY_SIZE_POLICY": 50,
+  "GAMMA_POLICY": 0.9999,
+  "EPSILON_POLICY": 0.2,
+  "BATCH_SIZE_POLICY": 128,
+  "MEMORY_SIZE_POLICY": 20,
   "N_BRACKETS": 7,
-  "BRACKET_GAP": 1000,
+  "BRACKET_GAP": 30000,
   "W_EQUALITY": 0.5,
 
 
@@ -54,7 +54,7 @@
   "BASE_SALARY": 10,
   "EDUCATION_INCREASE": 0.1,
 
-  "DISCOUNT_RATE_HEURISTIC": "none",
+  "DISCOUNT_RATE_HEURISTIC": "random_dist_0_10",
 
   "ACTIONS": [
     0,
@@ -63,10 +63,19 @@
   ],
   "SALARIES": [
     8000,
-    10000,
+    9000,
     13000,
     15000,
-    16000
+    25000
+  ],
+  "START_TAX_RATE": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
   ],
   "AVAILABLE_COMMODITIES": ["A","B","C"],
   "OUTPUT_FOLDER_PATH": "output"

@@ -94,12 +94,13 @@ class PolicyPlannerAgent:
         
         brackets = self.current_tax_rate
         BRACKET_GAP = configuration.config.get_constant("BRACKET_GAP")
-        income_bracket_index = min(int(income / BRACKET_GAP), len(brackets)-1)
+        income_bracket_index = min(int(income / BRACKET_GAP), len(brackets))
         
-        income_over_last_index = income - income_bracket_index * BRACKET_GAP
-        tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
+        # income_over_last_index = income - income_bracket_index * BRACKET_GAP
+        # tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
 
-        tax_income = tax_over_last_index
+        # tax_income = tax_over_last_index
+        tax_income = 0
         for i in range(income_bracket_index):
             tax_rate = max(min(brackets[i]/100,1),0)
             tax_income += tax_rate * BRACKET_GAP
@@ -127,10 +128,10 @@ class PolicyPlannerAgent:
         return reward
 
     def reset(self):
-        array = np.array(self.first_moves)
+        # array = np.array(self.first_moves)
         self.first_moves = []
-        column_averages = np.mean(array, axis=0)
-        self.current_tax_rate = column_averages.tolist()
+        # column_averages = np.mean(array, axis=0)
+        # self.current_tax_rate = column_averages.tolist()
 
     # def apply_tax(self, persons, brackets, BRACKET_GAP:int=5000):
     #     accumulated_tax=0

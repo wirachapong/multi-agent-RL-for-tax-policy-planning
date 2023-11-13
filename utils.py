@@ -6,13 +6,20 @@ import numpy as np
 import configuration
 import matplotlib.patches as mpatches
 
-
+discount_sums_constants = dict()
+def discounted_sum_constant_reward_vectorized(reward, discount_rate, k):
+    if discount_rate == 1:
+        return reward * k
+    if discount_rate not in discount_sums_constants:
+        discount_sums_constants[discount_rate] = np.power(discount_rate, np.arange(configuration.config.get_constant("NUM_EPISODES")))
+    discounted_sum = np.sum(reward * discount_sums_constants[discount_rate][:k])
+    return discounted_sum
 
 def get_discount_rate_heuristic(name: str):
     if name == "random_dist_0_10":
-        return lambda : random.randrange(20) / 100.0
+        return lambda : 1-(random.randrange(5)*8) / 100.0
     if name =="none":
-        return lambda : 0
+        return lambda : 1
 
 
 def plot_education_for_cycle(education_data: List[List[int]]):

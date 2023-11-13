@@ -1,4 +1,5 @@
 import configuration
+import utils
 from person import Person
 
 
@@ -20,7 +21,7 @@ class Person_0nn(Person):
         self.discount_rate = discount_rate
     
     # Closed form optimal choice ---> BEST RESPONSE 
-    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None, discount_rate: float = 0):
+    def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None):
         if self.education_level == max(self.education_levels):
             return 0
         
@@ -32,13 +33,17 @@ class Person_0nn(Person):
 
         time_steps_left = horizon - 1 - time_step
         income_if_earn, _  = tax_function(self.education_earnings[self.education_level])
-        income_if_earn *= time_steps_left
+        income_if_earn += self.tax_for_the_round
+        income_if_earn = utils.discounted_sum_constant_reward_vectorized(income_if_earn, self.discount_rate, time_steps_left)
 
         turns_needed = 0
         for education_level in range(self.education_level + 1, max(self.education_levels) + 1):
             turns_needed += self.education_turns_required[education_level]
             income_if_learn, _ = tax_function(self.education_earnings[education_level])
-            income_if_learn *=  (time_steps_left - turns_needed)  # todo Apply time discounting
+            income_if_learn += self.tax_for_the_round
+            income_if_learn = utils.discounted_sum_constant_reward_vectorized(income_if_learn, self.discount_rate, time_steps_left - turns_needed) * self.discount_rate**turns_needed
+            income_if_learn +=  utils.discounted_sum_constant_reward_vectorized(self.tax_for_the_round* turns_needed, self.discount_rate, turns_needed)
+            # income_if_learn *=  (time_steps_left - turns_needed)  # todo Apply time discounting
 
             if income_if_learn > income_if_earn:
                 return 1 # Learn

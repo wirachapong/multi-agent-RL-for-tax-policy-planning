@@ -6,6 +6,12 @@ from policyplanneragent import PolicyPlannerAgent
 import random
 from double_auction import *
 from bid_sell import *
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor()  # You can adjust the number of workers as appropriate.
+
+def select_action_for_person(person, time_step, horizon, tax_rate):
+    return person.select_action(time_step, horizon, tax_rate)
 
 class Environment_0nn(Environment):
     def __init__(self, n_persons:int, horizon: int, random_seed = 1):
@@ -29,8 +35,10 @@ class Environment_0nn(Environment):
         self.bid_sell_system = BidSellSystem(commodities=self.available_category_of_person ,agents=self.persons)
 
     def persons_step(self, is_terminal_state=False):
-        # Approach with individual comprehensions
-        # current_states = [person.get_state() for person in self.persons]
+
+        # for concurrent execution- in my PC is longer than reg run
+        # person_actions = self.get_person_actions_concurrently()
+
         person_actions = [person.select_action(self.time_step, self.horizon, self.PolicyPlannerAgent.tax_rate_for_income) for person in self.persons]
 
         for action, person in zip(person_actions, self.persons):
@@ -61,6 +69,15 @@ class Environment_0nn(Environment):
     def reset(self):
         self.time_step = 0
 
+    def get_person_actions_concurrently(self):
+        # Submit tasks to the already created pool executor.
+        futures = [executor.submit(select_action_for_person, person, self.time_step,
+                                   self.horizon,
+                                   self.PolicyPlannerAgent.tax_rate_for_income) for person
+                   in self.persons]
+        # Wait for all the tasks to complete and gather the results.
+        person_actions = [future.result() for future in futures]
+        return person_actions
     # override functions
     def persons_gain_category_token(self):
         pass
