@@ -17,7 +17,7 @@ def discounted_sum_constant_reward_vectorized(reward, discount_rate, k):
 
 def get_discount_rate_heuristic(name: str):
     if name == "random_dist_0_10":
-        return lambda : 1-(random.randrange(100)) / 100.0
+        return lambda : 1-(random.randrange(10)) / 100.0
     if name =="none":
         return lambda : 1
 
@@ -80,4 +80,8 @@ def plot_reward(rewards, window_size):
     # Add a legend
     plt.legend()
     return plt
+
+def create_random_tax_brackets(length):
+    return (np.random.randint(0, 800, size=(length))/10).tolist()  # Adjust the size as per your requirement
+
 

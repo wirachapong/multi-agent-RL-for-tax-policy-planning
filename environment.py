@@ -244,7 +244,7 @@ class Environment:
         self.fill_random_action_history()
 
 
-    def simulate_lifecycle(self, NUM_EPISODES, epsilon_policy: bool):
+    def simulate_lifecycle(self, NUM_EPISODES, epsilon_policy: bool, policy_learn = True, save_result = True):
         total_reward_policy_planner = 0
         total_reward_individual = 0
         is_terminal_state = False
@@ -276,14 +276,16 @@ class Environment:
             education_data.append([person.education_level for person in self.persons])
         reward_policy_planner = self.PolicyPlannerAgent.get_reward(0, self.persons, is_terminal_state)  # Assumes you've added this method to DQNAgent, similar to PolicyMaker
 
-        self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner, next_state)
-        self.PolicyPlannerAgent.replay()  # Experience replay
+        self.PolicyPlannerAgent.remember(current_state, action, reward_policy_planner,
+                                         next_state)
 
+        if policy_learn:
+            self.PolicyPlannerAgent.replay()  # Experience replay
 
-
-        #save data
-        self.saved_data["person_educations"].append(education_data)
-        self.saved_data["rewards_per_cycle"].append(reward_policy_planner)
+        if save_result:
+            #save data
+            self.saved_data["person_educations"].append(education_data)
+            self.saved_data["rewards_per_cycle"].append(reward_policy_planner)
 
         if print_info:
             print(f"Total reward after {NUM_EPISODES} episodes: {[reward_policy_planner/1000000,total_reward_individual]}")
@@ -292,7 +294,8 @@ class Environment:
         self.reset()
 
 
-
+    def set_policy_planer_tax(self, tax_brackets):
+        self.PolicyPlannerAgent.current_tax_rate= tax_brackets
     def reset(self):
         pass
     def fill_random_action_history(self):    #! Think maybe there is an error in this function??? - person loop doesn't use the person object

@@ -44,10 +44,24 @@ def main():
         env = Environment(NUM_PERSONS)                     # With neural network for each person
 
     rewards = []
+
+    # Can be set in the config.json. runs the model with random start points in order
+    # to learn before running the main task.
+    for learning_cycle in range(configuration.config.get_constant("LEARNING_CYCLES")):
+        env.set_policy_planer_tax(utils.create_random_tax_brackets(len(configuration.config.get_constant("START_TAX_RATE"))))
+        for lifecycles_in_lc in range (configuration.config.get_constant("LIFE_CYCLES_IN_LC")):
+            if lifecycles_in_lc % 5 == 0:
+                print(f"LEARNING CYCLE: {learning_cycle}, LIFECYCLE: {lifecycles_in_lc}")
+            env.simulate_lifecycle(NUM_EPISODES, True, lifecycles_in_lc!=0, False)
+
+    #Set the start tax policy
+    env.set_policy_planer_tax(configuration.config.get_constant("START_TAX_RATE"))
+
+    # Run the model starting from start run policy
     for lifecycle in range(NUM_LIFECYCLES):
         if lifecycle%5 == 0:
             print(f"LIFECYCLE: {lifecycle}")
-        env.simulate_lifecycle(NUM_EPISODES, lifecycle< configuration.config.get_constant("EPSILON_ROUNDS_POLICY"))
+        env.simulate_lifecycle(NUM_EPISODES, lifecycle< configuration.config.get_constant("EPSILON_ROUNDS_POLICY"), lifecycle!=0)
 
     save_model(NUM_LIFECYCLES, env)
 
