@@ -185,13 +185,14 @@ class PolicyPlannerAgent:
 
         brackets = self.current_tax_rate
         BRACKET_GAP = configuration.config.get_constant("BRACKET_GAP")
-        income_bracket_index = min(int(income / BRACKET_GAP), len(brackets))
+        income_bracket_index = min(int(income / BRACKET_GAP), len(brackets) - 1)
 
-        # income_over_last_index = income - income_bracket_index * BRACKET_GAP
-        # tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
 
-        # tax_income = tax_over_last_index
-        tax_income = 0
+        # To only tax the remaining income in the last bracket
+        income_over_last_index = income - income_bracket_index * BRACKET_GAP
+        tax_over_last_index = income_over_last_index * (brackets[income_bracket_index]/100)
+        tax_income = tax_over_last_index
+        
         for i in range(income_bracket_index):
             tax_rate = max(min(brackets[i] / 100, 1), 0)
             tax_income += tax_rate * BRACKET_GAP
