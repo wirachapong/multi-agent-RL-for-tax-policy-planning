@@ -31,8 +31,8 @@
   "NETWORTH_TURN0": 0,
   "NUM_PERSONS": 100 ,
   "NUM_EPISODES": 30,
-  "NUM_LIFECYCLES": 1500,
-  "LEARNING_CYCLES": 0,
+  "NUM_LIFECYCLES": 2000,
+  "LEARNING_CYCLES": 50,
   "LIFE_CYCLES_IN_LC": 20,
 
   "ALPHA_POLICY": 0.1,
@@ -63,7 +63,9 @@
   "ACTIONS": [
     0,
     1,
-    2
+    2,
+    3,
+    4
   ],
   "SALARIES": [
     8000,

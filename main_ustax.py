@@ -6,13 +6,8 @@ import utils
 from environment import Environment
 from environment_0nn import Environment_0nn
 from environment_1nn import Environment_1nn
-from policyplanneragent import PolicyPlannerAgent
-from person_1nn import Person_1nn
-from double_auction import *
-import environment_0nn
 import argparse
 from configuration import Configuration, config
-import json
 import os
 from datetime import datetime
 

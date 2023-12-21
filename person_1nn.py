@@ -1,8 +1,12 @@
-
+import configuration
+from NNOfPerson import NNOfPerson
 from person import Person
 import random
 
 class Person_1nn(Person):
+    """
+    A person that uses a nn in order to decide his actions.
+    """
 
     def __init__(self, model, idx:int, education_level:int, net_worth:float, epsilon:float=0.1, category:str='A'):
         super().__init__(idx, education_level, net_worth, epsilon, category)

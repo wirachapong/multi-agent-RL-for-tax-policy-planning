@@ -1,13 +1,9 @@
-
+import random
 import configuration
 import utils
-from environment import Environment
-from person_0nn import Person_0nn
-from policyplanneragent import PolicyPlannerAgent
-import random
-from double_auction import *
 from bid_sell import *
 from environment_0nn import Environment_0nn
+from person_0nn import Person_0nn
 
 
 class us_tax_rates(Environment_0nn):

@@ -6,12 +6,16 @@ from person import Person
 
 
 class Person_0nn(Person):
+    """
+    A deterministic Person, that calculates the best action to be taken.
+    Assumes current tax and rewards are persistent in the future.
+    """
 
     def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float=0.1, category:str='A',
                  discount_rate: float = 0):
         super().__init__(idx, education_level, net_worth, epsilon, category)
 
-        # No neural network for decision making
+        # No neural network for decision-making
         self.model = None
         self.memory = None
         self.optimizer = None
@@ -22,6 +26,16 @@ class Person_0nn(Person):
     
     # Closed form optimal choice ---> BEST RESPONSE 
     def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None):
+        """
+
+        Args:
+            time_step: current step in lifecycle
+            horizon: how many rounds to the future the person sees
+            tax_function: the perceived tax function
+
+        Returns: '1' to learn '0' to earn
+
+        """
         if self.education_level == max(self.education_levels):
             return 0
         
@@ -54,23 +68,7 @@ class Person_0nn(Person):
         return 0 # Earn 
 
 
-        #TODO Complete this
-        # if self.learning_years_remaining:
-        #     self.learning_years_remaining -= 1
-        #     if self.learning_years_remaining == 0:
-        #         education_level += 1 
-        #     return 2
-
-        # time_steps_left = horizon - 1 - time_step
-        # income_if_earn = self.potential_income * time_steps_left
-        # income_if_learn = (self.base_salary * (self.education_level + configuration.config.get_constant("EDUCATION_INCREASE"))) * (time_steps_left - 1)
-
-        # if income_if_earn > income_if_learn:
-        #     return 0
-        # else:
-        #     return 1
-
-    # Non existing functions without neural networks
+    # Non-existing functions without neural networks
     def remember(self, state, action: int, reward, next_state):
         raise Exception("No neural network in this object")
     

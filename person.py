@@ -7,7 +7,9 @@ from collections import deque
 from NNOfPerson import NNOfPerson
 
 class Person:
-    # id_generator = id_generator_function()
+    """
+    A Person is an agent that takes part in the system. has the ability to make actions and earn.
+    """
 
     def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float = 0.1, category:str='A'):
         # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
@@ -27,7 +29,7 @@ class Person:
         self.education_earnings = configuration.config.get_constant("EDUCATION_EARNINGS")
         self.education_turns_required = configuration.config.get_constant("EDUCATION_TURNS_REQUIRED")
 
-        # Value trackings
+        # Value tracking
         self.cost_of_living = configuration.config.get_constant("COST_OF_LIVING")
         self.net_worth = net_worth
         self.base_salary = configuration.config.get_constant("BASE_SALARY")
@@ -90,8 +92,6 @@ class Person:
         self.potential_income, _ = tax_function(self.education_earnings[self.education_level])
         self.net_worth -= self.cost_of_living
 
-        # self.education_level += configuration.config.get_constant("EDUCATION_INCREASE")
-        # self.potential_income, _  = tax_function(self.base_salary * self.education_level)
 
     # Can include number of hours worked at later stages
     def get_reward(self, is_terminal_state=False):
@@ -102,11 +102,6 @@ class Person:
     
     def get_state(self):
         return [self.net_worth, self.potential_income]
-
-    @property
-    def idx(self):
-        """Index used to identify this agent. Must be unique within the environment."""
-        return self._idx
 
     def select_action(self, time_step: int = 0, horizon: int = 100, tax_function = None):
         if np.random.random() < self.epsilon or len(self.memory) < configuration.config.get_constant("MEMORY_SIZE_PERSON"):
@@ -119,19 +114,22 @@ class Person:
                 max_indices = torch.argmax(q_values)
                 return int(max_indices) # 0-> earn, 1-> learn
     
-    # returns the next state
     def take_action(self, action:int, tax_function):
+        """
+        Returns: the next state
+        """
+
         if action == 0: # Earn
             self.earn(tax_function)
 
         else:
             self.learn(tax_function)
 
-    # def step(self):
-    #     action = self.select_action()
-    #     self.take_action(action)
-
     def get_tax_dist(self, amount: float):
+        """
+        performs necessary actions for each tax distribution
+        """
+
         self.last_tax_income = amount
         self.net_worth += amount
 
@@ -163,6 +161,10 @@ class Person:
             self.optimizer.step()
 
     def check_full_combination(self):
+        """
+        checks for possible sets of Resources.
+        """
+
         if self.category_token_value['A']>=5 and self.category_token_value['B']>=5 and self.category_token_value['C']>=5:
             self.net_worth+=100
             self.category_token_value['A']-=5
@@ -173,6 +175,7 @@ class Person:
         else:
             self.reward_from_token.append(0)
             return 0
+
     def learn_bid_A(self):
         # count_bid=sum(1 for elem in self.bid_history_A if elem != 0)
         sum_bid=sum(self.bid_history_A) # ไปเติมเคสที่บิดเป็น0ด้วยจ้า

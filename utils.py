@@ -1,28 +1,55 @@
 import random
 from typing import List
+
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 
 import configuration
-import matplotlib.patches as mpatches
 
 discount_sums_constants = dict()
-def discounted_sum_constant_reward_vectorized(reward, discount_rate, k):
+
+
+def discounted_sum_constant_reward_vectorized(reward: float, discount_rate: float,
+                                              k: int) -> float:
+    """
+    Calculates the discounted value for a given reward for a certain numer of rounds.
+    assumes same reward will be given in all subsequent rounds.
+
+    A table with discount values for each new discount_rate is stored in a dict for efficiency.
+
+    Args:
+        reward: the reward per round
+        discount_rate: the discount rate to be used
+        k: number of rounds
+
+    Returns: discounted reward over 'k' rounds
+    """
     if discount_rate == 1:
         return reward * k
     if discount_rate not in discount_sums_constants:
-        discount_sums_constants[discount_rate] = np.power(discount_rate, np.arange(configuration.config.get_constant("NUM_EPISODES")))
+        discount_sums_constants[discount_rate] = np.power(discount_rate, np.arange(
+            configuration.config.get_constant("NUM_EPISODES")))
     discounted_sum = np.sum(reward * discount_sums_constants[discount_rate][:k])
     return discounted_sum
 
+
 def get_discount_rate_heuristic(name: str):
+    """
+    Returns: a function for setting discount rate of Persons
+    """
+
     if name == "random_dist_0_10":
-        return lambda : 1-(random.randrange(10)) / 100.0
-    if name =="none":
-        return lambda : 1
+        return lambda: 1 - (random.randrange(10)) / 100.0
+    if name == "none":
+        return lambda: 1
 
 
 def plot_education_for_cycle(education_data: List[List[int]]):
+    """
+    creates a plot with bar for each turn that is colorcoded by the education
+    of the people.
+    """
     # Customize the graph, add labels, legends, etc.
     plt.figure(figsize=(10, 6))
 
@@ -57,31 +84,37 @@ def plot_education_for_cycle(education_data: List[List[int]]):
 
     return plt
 
+
 def plot_reward(rewards, window_size):
+    """
+    creates a plot of the rewards.
+
+    Args:
+        rewards: a list sincluding the rewards for each turn
+        window_size: for moving average
+
+    Returns: 2D plot of the rewards x turn
+
+    """
     # Calculate the moving average over the past 5 iterations
     moving_average = [np.mean(rewards[i:i + window_size]) for i in
                       range(len(rewards) - window_size + 1)]
     x = list(range(1, len(rewards) + 1))
 
-    # Create a line plot for the original data
     plt.plot(x, rewards, label='Data')
 
     # Create a line plot for the moving average
     x_ma = list(range(window_size, len(rewards) + 1))
     plt.plot(x_ma, moving_average, label='Moving Average (Window Size = 5)')
 
-    # Add labels to the axes
     plt.xlabel('Iteration')
     plt.ylabel('Value')
-
-    # Add a title to the plot
     plt.title('Data and Moving Average')
 
-    # Add a legend
     plt.legend()
     return plt
 
+
 def create_random_tax_brackets(length):
-    return (np.random.randint(0, 800, size=(length))/10).tolist()  # Adjust the size as per your requirement
-
-
+    return (np.random.randint(0, 800, size=(
+        length)) / 10).tolist()  # Adjust the size as per your requirement

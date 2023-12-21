@@ -1,10 +1,9 @@
+import configuration
 from environment import Environment
 from person_1nn import Person_1nn
 from NNOfPerson import NNOfPerson
 from policyplanneragent import PolicyPlannerAgent
-from constants import ACTIONS
 import random
-from double_auction import *
 from bid_sell import *
 
 class Environment_1nn(Environment):
@@ -18,7 +17,7 @@ class Environment_1nn(Environment):
         self.person_model = NNOfPerson(2, 2) # QNetwork[net_worth, potential_income] -> [earn, learn]
 
         self.persons = [Person_1nn(self.person_model, idx,  random.choice(education_level_turn0), net_worth_turn0, base_salary, category=random.choice(available_category_of_person)) for idx in range(n_persons)] 
-
+        ACTIONS = configuration.config.get_constant("ACTIONS")
         self.PolicyPlannerAgent = PolicyPlannerAgent(2 * n_persons + n_brackets, len(ACTIONS))
 
         self.bid_sell_system = BidSellSystem(commodities=["A","B","C"],agents=self.persons)
