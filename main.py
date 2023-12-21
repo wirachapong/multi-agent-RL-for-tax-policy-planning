@@ -13,8 +13,10 @@ from environment_1nn import Environment_1nn
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Your Application Description")
-    # Add the "--config-file" argument with a default value
+    parser = argparse.ArgumentParser(
+        description="Utilizes a configuration file to set up parameters and runs a "
+                    "simulation based on the specified environment.")
+
     parser.add_argument(
         "--config-file",
         help="Path to the configuration file",
@@ -29,15 +31,13 @@ def main():
     NUM_EPISODES = configuration.config.get_constant("NUM_EPISODES")
 
     if configuration.config.get_constant("0nn"):
-        env = Environment_0nn(NUM_PERSONS, NUM_EPISODES)  # With best response agents
+        env = Environment_0nn(NUM_PERSONS, NUM_EPISODES)  # With best-response agents
 
     elif configuration.config.get_constant("1nn"):
-        env = Environment_1nn(NUM_PERSONS)  # With 1 neural network for persons
+        env = Environment_1nn(NUM_PERSONS)  # With 1 neural-network for persons
 
     else:
-        env = Environment(NUM_PERSONS)  # With neural network for each person
-
-    rewards = []
+        env = Environment(NUM_PERSONS)  # With neural-network for each person
 
     # Can be set in the config.json. runs the model with random start points in order
     # to learn before running the main task.

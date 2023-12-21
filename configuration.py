@@ -6,6 +6,7 @@ class Configuration:
     """
     A simple class for loading and accessing configuration data from a JSON file.
     """
+
     def __init__(self, config_file):
         """
         Initializes the Configuration object with the specified configuration file path.
@@ -16,7 +17,7 @@ class Configuration:
         self.config_file = config_file
         self.config_data = self.load_config()
 
-    def load_config(self)-> dict:
+    def load_config(self) -> dict:
         """
         Reads the configuration data from the JSON file and returns it as a dictionary.
 
@@ -35,5 +36,6 @@ class Configuration:
         Returns: The value of the constant if it exists, otherwise None.
         """
         return self.config_data.get(const_name)
+
 
 config: Optional[Configuration] = None
