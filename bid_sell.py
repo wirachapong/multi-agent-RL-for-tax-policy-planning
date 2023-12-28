@@ -2,6 +2,9 @@ import numpy as np
 
 
 class BidSellSystem:
+    """
+    A BidSellSystem is the market maker that check and execute the bids and sells of tokens between each person.
+    """
     def __init__(
             self,
             *args,
@@ -10,6 +13,12 @@ class BidSellSystem:
             **kwargs
     ):
         super().__init__(*args, **kwargs)
+        """
+        Each of the bid_dictionary and sell_dictionary is the centralized dictionary to store the current bid and sell orders.
+
+        Each of the current_bid_price and current_sell_price are the current highest and lowest price required for bidding and selling to be executed respectively.
+
+        """
         self.bid_dictionary_A = {}
         self.bid_dictionary_B = {}
         self.bid_dictionary_C = {}
@@ -55,6 +64,12 @@ class BidSellSystem:
     def current_round_sell_dict_C(self):
         return self.sell_current_round_C
     def clear_previous_round(self):
+
+        """
+        Clear the bid and sell orders from previous rounds to update the main dictionary to contain only recent orders.
+
+        """
+
         # Clear previous round's bids for each token type
         for bid_key in self.bid_previous_round_A:
             if bid_key in self.bid_dictionary_A:
@@ -90,6 +105,13 @@ class BidSellSystem:
         self.bid_previous_round_C= self.bid_current_round_C
 
     def update_bid_sell_price(self):
+        
+        """
+
+        Updating current_bid_price and current_sell_price of each token.
+
+        """
+
         # For A
         if self.bid_dictionary_A:
             self.current_bid_price_A = max(self.bid_dictionary_A.keys())

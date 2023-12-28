@@ -12,11 +12,10 @@ class Person:
     """
 
     def __init__(self, idx:int, education_level:int, net_worth:float, epsilon:float = 0.1, category:str='A'):
-        # self.model= NNOfPerson --- Dont think this is needed because each person are independent objects
+
         
         # QNetwork definition
         self.model = NNOfPerson(2, 2) # QNetwork[net_worth, potential_income] -> [earn, learn]
-        # Needed for all definitions of a person
 
         self._idx = idx
         self.memory = deque()
@@ -170,7 +169,6 @@ class Person:
             self.category_token_value['A']-=5
             self.category_token_value['B']-=5
             self.category_token_value['C']-=5
-            print("FULLCOMBINATION")
             return 1
         else:
             self.reward_from_token.append(0)
@@ -187,16 +185,6 @@ class Person:
         else: 
             self.bid_amount_A=int(10*self.bid_amount_A-1)/10
             self.sell_amount_A=int(10*self.bid_amount_A+1)/10
-
-    # def learn_sell_A(self):
-    #     count_sell=sum(1 for elem in self.sell_history_A if elem != 0)
-    #     sum_sell=sum(self.sell_history_A)
-    #     sum_reward=sum(self.reward_from_token)
-    #     result = (sum_reward+sum_sell)/count_sell
-    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
-    #         self.sell_amount_A+=0.1
-    #     else: 
-    #         self.sell_amount_A-=0.1
 
     def update_bid_token_transaction_history_A(self,amount_money):
         self.bid_history_A.append(amount_money)
@@ -220,15 +208,6 @@ class Person:
             self.bid_amount_B=int(10*self.bid_amount_B-1)/10
             self.sell_amount_B=int(10*self.bid_amount_B+1)/10
 
-    # def learn_sell_B(self):
-    #     count_sell=sum(1 for elem in self.sell_history_B if elem != 0)
-    #     sum_sell=sum(self.sell_history_B)
-    #     sum_reward=sum(self.reward_from_token)
-    #     result = (sum_reward+sum_sell)/count_sell
-    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
-    #         self.sell_amount_B+=0.1
-    #     else: 
-    #         self.sell_amount_B-=0.1
 
     def update_bid_token_transaction_history_B(self,amount_money):
         self.bid_history_B.append(amount_money)
@@ -251,16 +230,6 @@ class Person:
         else: 
             self.bid_amount_C=int(10*self.bid_amount_C-1)/10
             self.sell_amount_C=int(10*self.bid_amount_C+1)/10
-
-    # def learn_sell_C(self):
-    #     # count_sell=sum(1 for elem in self.sell_history_C if elem != 0)
-    #     sum_sell=sum(self.sell_history_C)
-    #     sum_reward=sum(self.reward_from_token)
-    #     result = sum_reward+sum_sell
-    #     if result>0:   # ไปเติมเคสที่เซลเป็น0ด้วยจ้า
-    #         self.sell_amount_C+=0.1
-    #     else: 
-    #         self.sell_amount_C-=0.1
 
     def update_bid_token_transaction_history_C(self,amount_money):
         self.bid_history_C.append(amount_money)
